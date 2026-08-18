@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Weather</title>
+
+  <!-- PWA & Mobile Web App Meta Tags -->
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="icon" type="image/png" sizes="64x64" href="favicon.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#3a7bd5" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Weather" />
+  <!-- Typography: Apple SF Pro System Fonts with Inter web fallback -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="styles.css" />
+  <!-- Leaflet CSS & JS for Precipitation Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+</head>
+<body>
+
+  <div class="app-container" id="app">
+    <!-- Dynamic Canvas Weather Background Effects -->
+    <canvas id="weather-canvas" class="weather-canvas"></canvas>
+
+    <!-- Pull to Refresh Indicator -->
+    <div class="pull-indicator" id="pull-indicator">
+      <span class="pull-icon" id="pull-icon">↓</span>
+      <span class="pull-text" id="pull-text">Pull to refresh</span>
+    </div>
+
+    <!-- Top Navigation Bar -->
+    <div class="top-bar">
+      <div class="top-bar-title"><span id="cache-status-badge" class="cache-status-badge" style="display:none;"></span></div>
+      <button class="icon-btn" onclick="toggleDrawer(true)" aria-label="Open weather locations" title="Open weather locations">☰</button>
+    </div>
+
+    <!-- Hero Section -->
+    <div class="hero-section">
+      <div class="city-name" id="city">Locating...</div>
+      <div class="hero-temp-wrapper">
+        <span class="current-temp" id="current-temp">--</span>
+        <span class="degree-symbol">°</span>
+      </div>
+      <div class="condition-text" id="condition">Fetching weather...</div>
+      <div class="temp-range" id="today-range">H: --° L: --°</div>
+    </div>
+
+    <!-- AI Weather Summary Card -->
+    <div class="glass-card ai-summary-card" id="ai-summary-card">
+      <div class="ai-summary-header">
+        <div class="ai-summary-badge">
+          <span class="ai-sparkle">✨</span>
+          <span class="ai-card-title">AI Weather Summary</span>
+        </div>
+        <div class="ai-header-right">
+          <span class="ai-summary-time" id="ai-summary-time">Today</span>
+          <button class="ai-refresh-btn" id="ai-refresh-btn" onclick="triggerAISummaryRefresh()" title="Re-analyze weather summary" aria-label="Re-analyze weather summary">
+            <span class="ai-refresh-icon">↻</span>
+          </button>
+        </div>
+      </div>
+      <div class="ai-summary-text" id="ai-summary-text">Analyzing today's weather patterns...</div>
+      <div class="ai-summary-chips" id="ai-summary-chips"></div>
+    </div>
+
+    <!-- Hourly Forecast -->
+    <div class="glass-card">
+      <div class="hourly-container" id="hourly-list"></div>
+    </div>
+
+    <!-- Precipitation Radar Map (iOS Style) -->
+    <div class="glass-card map-card">
+      <div class="map-card-header">
+        <div class="card-title">🌧️ <span id="map-time">Radar</span></div>
+        <div class="map-header-actions">
+          <button class="map-action-btn" id="radar-reset-btn" onclick="resetRadarTime()" title="Reset to live radar frame" aria-label="Reset to live radar frame">↺</button>
+          <button class="map-action-btn" id="radar-play-btn" onclick="toggleRadarPlayback()" title="Play radar animation" aria-label="Play radar animation">▶</button>
+          <button class="map-action-btn" id="map-expand-btn" onclick="toggleFullscreenMap(true)" title="Expand radar map" aria-label="Expand radar map">⛶</button>
+        </div>
+      </div>
+      <div class="map-wrapper">
+        <div id="map" class="map-element"></div>
+        <button class="recenter-btn" id="recenter-btn" onclick="recenterMap()" title="Recenter on location" aria-label="Recenter map on current location">🎯</button>
+      </div>
+    </div>
+
+    <!-- 10-Day Forecast -->
+    <div class="glass-card">
+      <div class="card-title">📅 10-Day Forecast</div>
+      <div class="daily-list" id="daily-list"></div>
+    </div>
+
+    <!-- Air Quality Card (iOS Style) -->
+    <div class="glass-card aqi-card" id="aqi-card" style="display: none;">
+      <div class="card-title">🍃 AIR QUALITY</div>
+      <div class="aqi-main-info">
+        <div class="aqi-level-text" id="aqi-level">Loading air quality...</div>
+        <div class="aqi-desc" id="aqi-desc">Fetching air quality data...</div>
+      </div>
+      <div class="aqi-bar-container">
+        <div class="aqi-bar-bg">
+          <div class="aqi-indicator-dot" id="aqi-dot" style="left: 0%;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- iOS Wind Card (Matching w.png) -->
+    <div class="glass-card wind-card">
+      <div class="card-title">💨 WIND</div>
+      <div class="wind-content">
+        <div class="wind-rows">
+          <div class="wind-row">
+            <span class="wind-row-label">Wind</span>
+            <span class="wind-row-value" id="wind-speed-row">-- km/h</span>
+          </div>
+          <div class="wind-row">
+            <span class="wind-row-label">Gusts</span>
+            <span class="wind-row-value" id="wind-gusts-row">-- km/h</span>
+          </div>
+          <div class="wind-row">
+            <span class="wind-row-label">Direction</span>
+            <span class="wind-row-value" id="wind-dir-row">--</span>
+          </div>
+        </div>
+        <div class="wind-compass-area">
+          <svg class="compass-svg" viewBox="0 0 130 130" id="compass-svg" aria-hidden="true">
+            <g id="compass-ticks"></g>
+            <text x="65" y="6" class="compass-svg-label" text-anchor="middle" dominant-baseline="central">N</text>
+            <text x="124" y="65" class="compass-svg-label" text-anchor="middle" dominant-baseline="central">E</text>
+            <text x="65" y="124" class="compass-svg-label" text-anchor="middle" dominant-baseline="central">S</text>
+            <text x="6" y="65" class="compass-svg-label" text-anchor="middle" dominant-baseline="central">W</text>
+            <text x="65" y="63" class="compass-svg-speed" id="compass-speed-val" text-anchor="middle">--</text>
+            <text x="65" y="78" class="compass-svg-unit" text-anchor="middle">km/h</text>
+            <g id="compass-needle-group" transform="translate(65, 65) rotate(0)">
+              <circle cx="0" cy="-42" r="4" fill="#ffffff" />
+              <line x1="0" y1="-38" x2="0" y2="-23" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" />
+              <line x1="0" y1="23" x2="0" y2="38" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" />
+              <path d="M -6.5 33.5 L 0 42 L 6.5 33.5" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Weather Details Grid -->
+    <div class="details-grid">
+      <div class="glass-card detail-card">
+        <div class="card-title" id="sunset-card-title">🌅 Sunset</div>
+        <div class="detail-value" id="sunset-time">--:--</div>
+        <div class="detail-sub" id="sunset-sub">Sunrise: --:--</div>
+      </div>
+      <div class="glass-card detail-card">
+        <div class="card-title">💧 Humidity</div>
+        <div class="detail-value" id="humidity">--%</div>
+        <div class="detail-sub" id="dew-point">Dew point --°</div>
+      </div>
+      <div class="glass-card detail-card">
+        <div class="card-title">☀️ UV Index</div>
+        <div class="detail-value" id="uv-index">--</div>
+        <div class="detail-sub" id="uv-level">--</div>
+      </div>
+      <div class="glass-card detail-card">
+        <div class="card-title">👁️ Visibility</div>
+        <div class="detail-value" id="visibility">-- km</div>
+        <div class="detail-sub" id="visibility-sub">Clear view</div>
+      </div>
+      <div class="glass-card detail-card">
+        <div class="card-title">🧭 Pressure</div>
+        <div class="detail-value" id="pressure">-- hPa</div>
+        <div class="detail-sub" id="pressure-sub">Surface pressure</div>
+      </div>
+      <div class="glass-card detail-card">
+        <div class="card-title">🌡️ Feels Like</div>
+        <div class="detail-value" id="apparent-temp">--°</div>
+        <div class="detail-sub" id="feels-like-sub">Thermal comfort</div>
+      </div>
+    </div>
+
+    <!-- Locations Modal -->
+    <div class="drawer-overlay" id="drawer">
+      <div class="drawer-header">
+        <h2>Locations</h2>
+        <div class="drawer-header-actions">
+          <div class="unit-toggle-group">
+            <button class="unit-btn active" id="unit-c-btn" onclick="switchUnit('C')" aria-label="Use Celsius">°C</button>
+            <button class="unit-btn" id="unit-f-btn" onclick="switchUnit('F')" aria-label="Use Fahrenheit">°F</button>
+          </div>
+          <button class="icon-btn" onclick="toggleDrawer(false)" aria-label="Close locations menu" title="Close locations menu">✕</button>
+        </div>
+      </div>
+
+      <button class="gps-action-btn" onclick="locateUserAndClose()" aria-label="Use current GPS location">
+        <span>📍 Use Current Location (GPS)</span>
+      </button>
+
+      <input type="text" class="search-input" id="search-input" placeholder="Search for a city..." aria-label="Search for a city" oninput="handleSearch(this.value)" />
+
+      <div class="search-results" id="search-results"></div>
+
+      <div class="saved-section">
+        <div class="card-title">Detected GPS Location</div>
+        <div class="saved-locations-list" id="gps-list"></div>
+      </div>
+
+      <div class="saved-section">
+        <div class="card-title">Saved Locations</div>
+        <div class="saved-locations-list" id="saved-list"></div>
+      </div>
+
+      <!-- App Info & Data Sources Card -->
+      <div class="glass-card drawer-info-card">
+        <div class="card-title">ℹ️ About & Data Sources</div>
+        <div class="app-info-meta">
+          <div class="info-meta-row">
+            <span class="info-meta-label">Weather Source</span>
+            <span class="info-meta-value">Open-Meteo & RainViewer</span>
+          </div>
+          <div class="info-meta-row">
+            <span class="info-meta-label">App Version</span>
+            <span class="info-meta-value" id="app-version-val">v2.4.4</span>
+          </div>
+          <div class="info-meta-row">
+            <span class="info-meta-label">Code Repository (FOSS)</span>
+            <a href="https://codeberg.org/mmcvuur/app-ios-wx-clone" target="_blank" rel="noopener noreferrer" class="info-meta-link" title="Open Codeberg Repository">Codeberg ↗</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fullscreen Radar Map Modal -->
+    <div class="drawer-overlay fullscreen-map-overlay" id="fullscreen-map-modal">
+      <div class="drawer-header">
+        <h2>🌧️ <span id="fs-map-time">Radar</span></h2>
+        <div class="map-header-actions">
+          <button class="map-action-btn" id="fs-radar-reset-btn" onclick="resetRadarTime()" title="Reset to live radar frame" aria-label="Reset to live radar frame">↺ Live</button>
+          <button class="map-action-btn" id="fs-radar-play-btn" onclick="toggleRadarPlayback()" title="Play radar animation" aria-label="Play radar animation">▶ Play</button>
+          <button class="icon-btn" onclick="toggleFullscreenMap(false)" aria-label="Close fullscreen radar map" title="Close fullscreen map">✕</button>
+        </div>
+      </div>
+      <div class="fullscreen-map-wrapper">
+        <div id="fs-map" class="fullscreen-map-element"></div>
+        <button class="recenter-btn" id="fs-recenter-btn" onclick="recenterFullscreenMap()" title="Recenter on location" aria-label="Recenter map on current location">🎯</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
+
