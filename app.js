@@ -1861,6 +1861,7 @@ class WeatherCanvasEngine {
         });
       }
     } else if (!this.isDay && [0, 1, 2].includes(code)) {
+      const count = 40;
       for (let i = 0; i < count; i++) {
         this.particles.push({
           x: Math.random() * w,
