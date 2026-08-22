@@ -67,6 +67,31 @@ function getWeatherMeta(code, isDay = 1) {
   return { text: match.text, icon: isDay ? match.icon : match.nightIcon };
 }
 
+function getHourlyWeatherMeta(code, isDay = 1, precipProb = 0) {
+  const isPrecipCode = [51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 71, 73, 75, 77, 80, 81, 82, 85, 86, 95, 96, 99].includes(code);
+
+  let effectiveCode = code;
+  // If the model reported clear/cloudy but there is a significant probability of precipitation,
+  // ensure the icon reflects rain/showers rather than a clear sun (☀️).
+  if (!isPrecipCode && precipProb >= 25) {
+    if (code === 3 || precipProb >= 60) {
+      effectiveCode = 61; // Rain (🌧️)
+    } else {
+      effectiveCode = 80; // Rain Showers (🌦️ by day, 🌧️ by night)
+    }
+  }
+
+  const meta = getWeatherMeta(effectiveCode, isDay);
+  const showPrecip = (isPrecipCode || precipProb >= 25) && precipProb >= 20;
+
+  return {
+    text: meta.text,
+    icon: meta.icon,
+    showPrecip,
+    precipProb
+  };
+}
+
 // --- STORAGE MANAGEMENT ---
 function getLastGPSLocation() {
   try {
@@ -1191,9 +1216,9 @@ function renderHourly(data) {
     const code = data.hourly.weather_code[i];
     const isDay = data.hourly.is_day ? data.hourly.is_day[i] : 1;
     const precipProb = data.hourly.precipitation_probability ? Math.round(data.hourly.precipitation_probability[i]) : 0;
-    const meta = getWeatherMeta(code, isDay);
+    const meta = getHourlyWeatherMeta(code, isDay, precipProb);
 
-    const precipHtml = precipProb >= 10 
+    const precipHtml = meta.showPrecip 
       ? `<span class="hourly-precip">${precipProb}%</span>` 
       : "";
 
