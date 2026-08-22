@@ -1214,5 +1214,15 @@ body {
   border-color: rgba(96, 165, 250, 0.45);
 }
 
+.ai-chip-storm {
+  background: rgba(239, 68, 68, 0.22);
+  border-color: rgba(239, 68, 68, 0.45);
+}
+
+.ai-chip-fog {
+  background: rgba(148, 163, 184, 0.25);
+  border-color: rgba(148, 163, 184, 0.45);
+}
+
 
 

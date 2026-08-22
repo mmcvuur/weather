@@ -31,36 +31,170 @@ const SOLAR_ICONS = {
   </svg>`
 };
 
+// --- COMPREHENSIVE WMO 4677 WEATHER INTERPRETATION CODES ---
 const wmoCodes = {
+  // 00–03: Clouds & Clear Sky
   0: { text: "Clear Sky", icon: "☀️", nightIcon: "🌙" },
   1: { text: "Mainly Clear", icon: "🌤️", nightIcon: "🌙" },
   2: { text: "Partly Cloudy", icon: "⛅", nightIcon: "☁️" },
   3: { text: "Overcast", icon: "☁️", nightIcon: "☁️" },
+
+  // 04–09: Smoke, Haze, Dust & Sand
+  4: { text: "Smoke", icon: "🌫️", nightIcon: "🌫️" },
+  5: { text: "Haze", icon: "🌫️", nightIcon: "🌫️" },
+  6: { text: "Widespread Dust", icon: "🌪️", nightIcon: "🌫️" },
+  7: { text: "Blowing Dust / Sand", icon: "🌪️", nightIcon: "🏜️" },
+  8: { text: "Dust Whirls", icon: "🌪️", nightIcon: "🌪️" },
+  9: { text: "Duststorm in Distance", icon: "🌪️", nightIcon: "🏜️" },
+
+  // 10–12: Mist & Shallow Fog
+  10: { text: "Mist", icon: "🌫️", nightIcon: "🌫️" },
+  11: { text: "Shallow Fog Patches", icon: "🌫️", nightIcon: "🌫️" },
+  12: { text: "Continuous Shallow Fog", icon: "🌫️", nightIcon: "🌫️" },
+
+  // 13–19: Atmospheric Phenomena & Squalls
+  13: { text: "Visible Lightning", icon: "⚡", nightIcon: "⚡" },
+  14: { text: "Precipitation in Sight (Virga)", icon: "🌦️", nightIcon: "🌧️" },
+  15: { text: "Distant Precipitation", icon: "🌦️", nightIcon: "🌧️" },
+  16: { text: "Nearby Precipitation", icon: "🌦️", nightIcon: "🌧️" },
+  17: { text: "Dry Thunderstorm", icon: "🌩️", nightIcon: "🌩️" },
+  18: { text: "Squalls", icon: "💨", nightIcon: "💨" },
+  19: { text: "Funnel Cloud / Tornado", icon: "🌪️", nightIcon: "🌪️" },
+
+  // 20–29: Preceding Weather Phenomena
+  20: { text: "Recent Drizzle", icon: "🌧️", nightIcon: "🌧️" },
+  21: { text: "Recent Rain", icon: "🌧️", nightIcon: "🌧️" },
+  22: { text: "Recent Snow", icon: "🌨️", nightIcon: "🌨️" },
+  23: { text: "Recent Rain & Snow", icon: "🌨️", nightIcon: "🌨️" },
+  24: { text: "Recent Freezing Rain", icon: "🌧️", nightIcon: "🌧️" },
+  25: { text: "Recent Rain Showers", icon: "🌦️", nightIcon: "🌧️" },
+  26: { text: "Recent Snow Showers", icon: "🌨️", nightIcon: "🌨️" },
+  27: { text: "Recent Hail Showers", icon: "🌨️", nightIcon: "🌨️" },
+  28: { text: "Recent Fog", icon: "🌫️", nightIcon: "🌫️" },
+  29: { text: "Recent Thunderstorm", icon: "🌩️", nightIcon: "🌩️" },
+
+  // 30–35: Duststorms & Sandstorms
+  30: { text: "Slight Duststorm", icon: "🌪️", nightIcon: "🏜️" },
+  31: { text: "Moderate Duststorm", icon: "🌪️", nightIcon: "🏜️" },
+  32: { text: "Increasing Duststorm", icon: "🌪️", nightIcon: "🏜️" },
+  33: { text: "Severe Duststorm", icon: "🌪️", nightIcon: "🏜️" },
+  34: { text: "Heavy Duststorm", icon: "🌪️", nightIcon: "🏜️" },
+  35: { text: "Intense Duststorm", icon: "🌪️", nightIcon: "🏜️" },
+
+  // 36–39: Drifting & Blowing Snow
+  36: { text: "Low Drifting Snow", icon: "🌨️", nightIcon: "❄️" },
+  37: { text: "Heavy Drifting Snow", icon: "🌨️", nightIcon: "❄️" },
+  38: { text: "Blowing Snow", icon: "🌨️", nightIcon: "❄️" },
+  39: { text: "Heavy Blowing Snow", icon: "🌨️", nightIcon: "❄️" },
+
+  // 40–49: Fog & Ice Fog
+  40: { text: "Distant Fog", icon: "🌫️", nightIcon: "🌫️" },
+  41: { text: "Fog Patches", icon: "🌫️", nightIcon: "🌫️" },
+  42: { text: "Thinning Fog", icon: "🌫️", nightIcon: "🌫️" },
+  43: { text: "Dense Thinning Fog", icon: "🌫️", nightIcon: "🌫️" },
+  44: { text: "Fog", icon: "🌫️", nightIcon: "🌫️" },
   45: { text: "Fog", icon: "🌫️", nightIcon: "🌫️" },
+  46: { text: "Thickening Fog", icon: "🌫️", nightIcon: "🌫️" },
+  47: { text: "Dense Thickening Fog", icon: "🌫️", nightIcon: "🌫️" },
   48: { text: "Depositing Rime Fog", icon: "🌫️", nightIcon: "🌫️" },
+  49: { text: "Dense Rime Fog", icon: "🌫️", nightIcon: "🌫️" },
+
+  // 50–59: Drizzle
+  50: { text: "Intermittent Slight Drizzle", icon: "🌧️", nightIcon: "🌧️" },
   51: { text: "Light Drizzle", icon: "🌧️", nightIcon: "🌧️" },
+  52: { text: "Intermittent Moderate Drizzle", icon: "🌧️", nightIcon: "🌧️" },
   53: { text: "Moderate Drizzle", icon: "🌧️", nightIcon: "🌧️" },
+  54: { text: "Intermittent Dense Drizzle", icon: "🌧️", nightIcon: "🌧️" },
   55: { text: "Dense Drizzle", icon: "🌧️", nightIcon: "🌧️" },
   56: { text: "Light Freezing Drizzle", icon: "🌧️", nightIcon: "🌧️" },
   57: { text: "Dense Freezing Drizzle", icon: "🌧️", nightIcon: "🌧️" },
+  58: { text: "Drizzle & Rain Mixed", icon: "🌧️", nightIcon: "🌧️" },
+  59: { text: "Heavy Drizzle & Rain", icon: "🌧️", nightIcon: "🌧️" },
+
+  // 60–69: Rain
+  60: { text: "Intermittent Slight Rain", icon: "🌧️", nightIcon: "🌧️" },
   61: { text: "Slight Rain", icon: "🌧️", nightIcon: "🌧️" },
+  62: { text: "Intermittent Moderate Rain", icon: "🌧️", nightIcon: "🌧️" },
   63: { text: "Moderate Rain", icon: "🌧️", nightIcon: "🌧️" },
+  64: { text: "Intermittent Heavy Rain", icon: "🌧️", nightIcon: "🌧️" },
   65: { text: "Heavy Rain", icon: "🌧️", nightIcon: "🌧️" },
   66: { text: "Light Freezing Rain", icon: "🌧️", nightIcon: "🌧️" },
   67: { text: "Heavy Freezing Rain", icon: "🌧️", nightIcon: "🌧️" },
+  68: { text: "Slight Rain & Snow Mixed", icon: "🌨️", nightIcon: "🌨️" },
+  69: { text: "Heavy Rain & Snow Mixed", icon: "🌨️", nightIcon: "🌨️" },
+
+  // 70–79: Solid Precipitation (Snow, Grains, Ice Pellets)
+  70: { text: "Intermittent Slight Snow", icon: "🌨️", nightIcon: "🌨️" },
   71: { text: "Slight Snow", icon: "🌨️", nightIcon: "🌨️" },
+  72: { text: "Intermittent Moderate Snow", icon: "🌨️", nightIcon: "🌨️" },
   73: { text: "Moderate Snow", icon: "🌨️", nightIcon: "🌨️" },
+  74: { text: "Intermittent Heavy Snow", icon: "🌨️", nightIcon: "🌨️" },
   75: { text: "Heavy Snow", icon: "🌨️", nightIcon: "🌨️" },
+  76: { text: "Diamond Dust", icon: "❄️", nightIcon: "❄️" },
   77: { text: "Snow Grains", icon: "🌨️", nightIcon: "🌨️" },
+  78: { text: "Snow Crystals", icon: "❄️", nightIcon: "❄️" },
+  79: { text: "Ice Pellets / Sleet", icon: "🌨️", nightIcon: "🌨️" },
+
+  // 80–90: Showery Precipitation
   80: { text: "Slight Rain Showers", icon: "🌦️", nightIcon: "🌧️" },
   81: { text: "Moderate Rain Showers", icon: "🌦️", nightIcon: "🌧️" },
   82: { text: "Violent Rain Showers", icon: "🌧️", nightIcon: "🌧️" },
+  83: { text: "Slight Mixed Showers", icon: "🌨️", nightIcon: "🌨️" },
+  84: { text: "Heavy Mixed Showers", icon: "🌨️", nightIcon: "🌨️" },
   85: { text: "Slight Snow Showers", icon: "🌨️", nightIcon: "🌨️" },
   86: { text: "Heavy Snow Showers", icon: "🌨️", nightIcon: "🌨️" },
+  87: { text: "Slight Snow Pellet Showers", icon: "🌨️", nightIcon: "🌨️" },
+  88: { text: "Heavy Snow Pellet Showers", icon: "🌨️", nightIcon: "🌨️" },
+  89: { text: "Slight Hail Showers", icon: "🌨️", nightIcon: "🌨️" },
+  90: { text: "Heavy Hail Showers", icon: "🌨️", nightIcon: "🌨️" },
+
+  // 91–99: Thunderstorms
+  91: { text: "Slight Rain with Thunder", icon: "⛈️", nightIcon: "⛈️" },
+  92: { text: "Heavy Rain with Thunder", icon: "⛈️", nightIcon: "⛈️" },
+  93: { text: "Slight Snow with Thunder", icon: "⛈️", nightIcon: "⛈️" },
+  94: { text: "Heavy Snow with Thunder", icon: "⛈️", nightIcon: "⛈️" },
   95: { text: "Thunderstorm", icon: "🌩️", nightIcon: "🌩️" },
   96: { text: "Thunderstorm & Hail", icon: "🌩️", nightIcon: "🌩️" },
+  97: { text: "Heavy Thunderstorm", icon: "⛈️", nightIcon: "⛈️" },
+  98: { text: "Dust Thunderstorm", icon: "🌩️", nightIcon: "🌩️" },
   99: { text: "Heavy Hail Thunderstorm", icon: "🌩️", nightIcon: "🌩️" }
 };
+
+// Weather Code Categorization Sets for Helper & Engine Logic
+const PRECIP_CODES = new Set([
+  14, 15, 16, 20, 21, 22, 23, 24, 25, 26, 27,
+  50, 51, 52, 53, 54, 55, 56, 57, 58, 59,
+  60, 61, 62, 63, 64, 65, 66, 67, 68, 69,
+  70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
+  80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90,
+  91, 92, 93, 94, 95, 96, 97, 98, 99
+]);
+
+const RAIN_CODES = new Set([
+  20, 21, 24, 25,
+  50, 51, 52, 53, 54, 55, 56, 57, 58, 59,
+  60, 61, 62, 63, 64, 65, 66, 67, 68, 69,
+  80, 81, 82,
+  91, 92
+]);
+
+const SNOW_CODES = new Set([
+  22, 23, 26, 27,
+  36, 37, 38, 39,
+  70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
+  83, 84, 85, 86, 87, 88, 89, 90,
+  93, 94
+]);
+
+const THUNDER_CODES = new Set([
+  13, 17, 29, 91, 92, 93, 94, 95, 96, 97, 98, 99
+]);
+
+const FOG_DUST_CODES = new Set([
+  4, 5, 6, 7, 8, 9, 10, 11, 12, 28,
+  30, 31, 32, 33, 34, 35,
+  40, 41, 42, 43, 44, 45, 46, 47, 48, 49
+]);
 
 function getWeatherMeta(code, isDay = 1) {
   const match = wmoCodes[code] || { text: "Unknown", icon: "🌡️", nightIcon: "🌡️" };
@@ -68,7 +202,7 @@ function getWeatherMeta(code, isDay = 1) {
 }
 
 function getHourlyWeatherMeta(code, isDay = 1, precipProb = 0) {
-  const isPrecipCode = [51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 71, 73, 75, 77, 80, 81, 82, 85, 86, 95, 96, 99].includes(code);
+  const isPrecipCode = PRECIP_CODES.has(code);
 
   let effectiveCode = code;
   // If the model reported clear/cloudy but there is a significant probability of precipitation,
@@ -1024,12 +1158,12 @@ function generateAISummary(data, aqiData) {
   for (let i = 0; i < next12PrecipProb.length; i++) {
     const prob = next12PrecipProb[i];
     const code = next12Codes[i];
-    const isRainCode = [51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82, 95, 96, 99].includes(code);
-    if ((prob >= 35 || isRainCode) && rainStartHour === null) {
+    const isRain = RAIN_CODES.has(code) || THUNDER_CODES.has(code);
+    if ((prob >= 35 || isRain) && rainStartHour === null) {
       const timeStr = next12Hours[i];
       rainStartHour = parseInt(timeStr.slice(11, 13), 10);
     }
-    if (rainStartHour !== null && (prob < 20 && !isRainCode) && rainEndHour === null) {
+    if (rainStartHour !== null && (prob < 20 && !isRain) && rainEndHour === null) {
       const timeStr = next12Hours[i];
       rainEndHour = parseInt(timeStr.slice(11, 13), 10);
     }
@@ -1049,12 +1183,16 @@ function generateAISummary(data, aqiData) {
     sentences.push(`Expect mostly ${current.is_day ? 'sunny' : 'clear'} conditions in ${locName} today, with highs reaching ${maxTemp}° and a low of ${minTemp}°.`);
   } else if ([2, 3].includes(current.weather_code)) {
     sentences.push(`Partly cloudy to overcast skies will prevail today in ${locName}, with temperatures peaking at ${maxTemp}° and dropping to ${minTemp}°.`);
-  } else if ([51, 53, 55, 61, 63, 65, 80, 81, 82].includes(current.weather_code)) {
-    sentences.push(`Showery conditions will dominate today in ${locName}, with highs around ${maxTemp}° and current temperature at ${currentTemp}°.`);
-  } else if ([95, 96, 99].includes(current.weather_code)) {
+  } else if (THUNDER_CODES.has(current.weather_code)) {
     sentences.push(`Thunderstorm activity and precipitation expected today in ${locName}, with highs reaching ${maxTemp}°.`);
-  } else if ([71, 73, 75, 85, 86].includes(current.weather_code)) {
-    sentences.push(`Snowfall expected in ${locName} today, with temperatures hovering around ${maxTemp}° (feeling like ${feelsLike}°).`);
+  } else if (SNOW_CODES.has(current.weather_code)) {
+    sentences.push(`Snowfall and winter conditions expected in ${locName} today, with temperatures hovering around ${maxTemp}° (feeling like ${feelsLike}°).`);
+  } else if (RAIN_CODES.has(current.weather_code)) {
+    sentences.push(`Showery and rainy conditions will dominate today in ${locName}, with highs around ${maxTemp}° and current temperature at ${currentTemp}°.`);
+  } else if (FOG_DUST_CODES.has(current.weather_code)) {
+    sentences.push(`Hazy and reduced visibility conditions (${meta.text}) expected today in ${locName}, with highs around ${maxTemp}°.`);
+  } else if ([18, 19].includes(current.weather_code)) {
+    sentences.push(`Severe atmospheric activity (${meta.text}) reported in ${locName} today, with temperatures around ${maxTemp}°.`);
   } else {
     sentences.push(`${meta.text} conditions expected today in ${locName}, ranging from ${minTemp}° to ${maxTemp}°.`);
   }
@@ -1093,9 +1231,15 @@ function generateAISummary(data, aqiData) {
   const chips = [];
 
   // Precip / Sky chip
-  if (maxPrecipProb >= 35 || rainStartHour !== null) {
+  if (maxPrecipProb >= 35 || rainStartHour !== null || RAIN_CODES.has(current.weather_code)) {
     chips.push({ icon: '☔', label: `Rain Expected (${maxPrecipProb}%)`, type: 'rain' });
     chips.push({ icon: '☂️', label: 'Bring Umbrella', type: 'advice' });
+  } else if (SNOW_CODES.has(current.weather_code)) {
+    chips.push({ icon: '❄️', label: 'Snow & Icy Conditions', type: 'cold' });
+  } else if (THUNDER_CODES.has(current.weather_code)) {
+    chips.push({ icon: '🌩️', label: 'Thunderstorms Expected', type: 'storm' });
+  } else if (FOG_DUST_CODES.has(current.weather_code)) {
+    chips.push({ icon: '🌫️', label: `${meta.text} - Low Visibility`, type: 'fog' });
   } else if ([0, 1].includes(current.weather_code)) {
     chips.push({ icon: '☀️', label: 'Sunny & Clear', type: 'clear' });
   } else if ([2, 3].includes(current.weather_code)) {
@@ -1672,16 +1816,16 @@ class WeatherCanvasEngine {
   createParticles() {
     this.particles = [];
     const code = this.currentCode;
-    const isRain = [51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82, 95, 96, 99].includes(code);
-    const isSnow = [71, 73, 75, 77, 85, 86].includes(code);
-    const isThunder = [95, 96, 99].includes(code);
-    const isFog = [45, 48].includes(code);
+    const isRain = RAIN_CODES.has(code) || THUNDER_CODES.has(code);
+    const isSnow = SNOW_CODES.has(code);
+    const isThunder = THUNDER_CODES.has(code);
+    const isFog = FOG_DUST_CODES.has(code);
 
     const w = this.width || 360;
     const h = this.height || 640;
 
     if (isRain || isThunder) {
-      const count = isThunder || [65, 82, 99].includes(code) ? 50 : 35;
+      const count = isThunder || [65, 82, 92, 94, 97, 99].includes(code) ? 50 : 35;
       for (let i = 0; i < count; i++) {
         this.particles.push({
           x: Math.random() * w,
@@ -1692,7 +1836,7 @@ class WeatherCanvasEngine {
         });
       }
     } else if (isSnow) {
-      const count = 35;
+      const count = [75, 86, 88, 90, 94].includes(code) ? 50 : 35;
       for (let i = 0; i < count; i++) {
         this.particles.push({
           x: Math.random() * w,
@@ -1717,7 +1861,6 @@ class WeatherCanvasEngine {
         });
       }
     } else if (!this.isDay && [0, 1, 2].includes(code)) {
-      const count = 40;
       for (let i = 0; i < count; i++) {
         this.particles.push({
           x: Math.random() * w,
@@ -1752,10 +1895,10 @@ class WeatherCanvasEngine {
     this.ctx.clearRect(0, 0, this.width, this.height);
 
     const code = this.currentCode;
-    const isRain = [51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82, 95, 96, 99].includes(code);
-    const isSnow = [71, 73, 75, 77, 85, 86].includes(code);
-    const isThunder = [95, 96, 99].includes(code);
-    const isFog = [45, 48].includes(code);
+    const isRain = RAIN_CODES.has(code) || THUNDER_CODES.has(code);
+    const isSnow = SNOW_CODES.has(code);
+    const isThunder = THUNDER_CODES.has(code);
+    const isFog = FOG_DUST_CODES.has(code);
 
     if (isThunder && Math.random() < 0.008) {
       this.ctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
