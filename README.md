@@ -87,11 +87,13 @@ An authentic, feature-packed Progressive Web App (PWA) recreating the native App
 ├── sw.js                # Service Worker for asset caching and offline resilience
 ├── bump-version.js      # Utility script for semantic versioning & cache timestamp updates
 ├── manifest.json        # PWA configuration and metadata
+├── favicon.ico          # Legacy ICO favicon
 ├── favicon.svg          # Vector favicon
 ├── favicon.png          # PNG favicon
 ├── icon-192.png         # PWA icon (192x192)
 ├── icon-512.png         # PWA icon (512x512)
 ├── apple-touch-icon.png # Apple touch icon for iOS Home Screen
+├── robots.txt           # Crawler instructions
 └── LICENSE              # MIT License
 ```
 
@@ -103,7 +105,7 @@ No build tools, bundlers, or package installations are required!
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/mmcvuur/weather.git
+git clone https://codeberg.org/mmcvuur/weather.git
 cd weather
 ```
 
