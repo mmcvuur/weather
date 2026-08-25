@@ -244,6 +244,14 @@ function saveLastGPSLocation(loc) {
   }
 }
 
+function removeLastGPSLocation() {
+  try {
+    localStorage.removeItem('ios_weather_last_gps');
+  } catch (err) {
+    console.error("Failed to remove last GPS location:", err);
+  }
+}
+
 function getStoredLocations() {
   try {
     const saved = localStorage.getItem('ios_weather_saved');
@@ -422,46 +430,97 @@ async function initApp() {
 }
 
 function locateUserAndClose() {
-  locateUser();
-  toggleDrawer(false);
+  locateUser({ closeDrawer: true, forceFresh: true });
 }
 
-async function locateUser() {
+let isLocatingGPS = false;
+
+async function locateUser(options = {}) {
+  const { closeDrawer = false, forceFresh = true, targetBtn = null } = options;
+
+  if (isLocatingGPS) return;
+
   if (!navigator.geolocation) {
     alert("Geolocation is not supported by your browser.");
     return;
+  }
+
+  isLocatingGPS = true;
+  const gpsBtn = document.getElementById("gps-locate-btn") || document.querySelector(".gps-action-btn");
+  if (gpsBtn) {
+    gpsBtn.classList.add("locating");
+  }
+  if (targetBtn) {
+    targetBtn.classList.add("spinning");
   }
 
   document.getElementById("condition").textContent = "Acquiring position...";
 
   navigator.geolocation.getCurrentPosition(
     async (pos) => {
-      const lat = pos.coords.latitude;
-      const lon = pos.coords.longitude;
-      const name = await getCityName(lat, lon);
-      const loc = { lat, lon, name, isGPS: true };
-      
-      saveLastGPSLocation(loc);
-      setActiveLocation(loc);
-      fetchWeather(lat, lon, name);
+      try {
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+        const name = await getCityName(lat, lon);
+        const loc = { lat, lon, name, isGPS: true };
+        
+        saveLastGPSLocation(loc);
+        setActiveLocation(loc);
+        fetchWeather(lat, lon, name);
+        renderSavedLocations();
+
+        if (closeDrawer) {
+          toggleDrawer(false);
+        }
+      } catch (err) {
+        console.error("Error processing GPS location:", err);
+      } finally {
+        isLocatingGPS = false;
+        if (gpsBtn) {
+          gpsBtn.classList.remove("locating");
+        }
+        if (targetBtn) {
+          targetBtn.classList.remove("spinning");
+        }
+      }
     },
     (err) => {
       console.warn("Geolocation error:", err);
-      document.getElementById("condition").textContent = "Location access denied";
+      isLocatingGPS = false;
+      if (gpsBtn) {
+        gpsBtn.classList.remove("locating");
+      }
+      if (targetBtn) {
+        targetBtn.classList.remove("spinning");
+      }
+
+      let errMsg = "Location access denied";
+      if (err.code === 2) {
+        errMsg = "Location unavailable";
+      } else if (err.code === 3) {
+        errMsg = "Location request timed out";
+      }
+      document.getElementById("condition").textContent = errMsg;
+      alert(`Could not acquire GPS position: ${errMsg}. Check browser location permissions.`);
     },
-    { timeout: 10000, maximumAge: 60000 }
+    { timeout: 12000, maximumAge: forceFresh ? 0 : 60000, enableHighAccuracy: true }
   );
 }
 
 function updateGPSInBackground() {
   if (!navigator.geolocation) return;
+  const activeLoc = getActiveLocation();
+  if (!activeLoc || !activeLoc.isGPS) return;
+
   navigator.geolocation.getCurrentPosition(async (pos) => {
     const lat = pos.coords.latitude;
     const lon = pos.coords.longitude;
-    const activeLoc = getActiveLocation();
+    const currentActive = getActiveLocation();
+
+    if (!currentActive || !currentActive.isGPS) return;
 
     // Skip redundant fetch if location has not changed significantly (~100m)
-    if (activeLoc && activeLoc.isGPS && Math.abs(activeLoc.lat - lat) < 0.001 && Math.abs(activeLoc.lon - lon) < 0.001) {
+    if (Math.abs(currentActive.lat - lat) < 0.001 && Math.abs(currentActive.lon - lon) < 0.001) {
       return;
     }
 
@@ -1633,10 +1692,31 @@ function renderSavedLocations() {
     info.appendChild(subSpan);
     gpsItem.appendChild(info);
 
+    const actions = document.createElement("div");
+    actions.className = "location-item-actions";
+
     const badge = document.createElement("span");
     badge.className = "gps-badge";
     badge.textContent = "GPS";
-    gpsItem.appendChild(badge);
+    actions.appendChild(badge);
+
+    const refreshBtn = document.createElement("button");
+    refreshBtn.className = "location-action-btn gps-refresh-btn";
+    refreshBtn.innerHTML = "↻";
+    refreshBtn.setAttribute("title", "Obtain new GPS location");
+    refreshBtn.setAttribute("aria-label", "Obtain new GPS location");
+    refreshBtn.onclick = (e) => refreshGPSLocation(e, refreshBtn);
+    actions.appendChild(refreshBtn);
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.className = "delete-btn";
+    deleteBtn.textContent = "✕";
+    deleteBtn.setAttribute("title", "Delete GPS location");
+    deleteBtn.setAttribute("aria-label", "Delete GPS location");
+    deleteBtn.onclick = (e) => deleteGPSLocation(e);
+    actions.appendChild(deleteBtn);
+
+    gpsItem.appendChild(actions);
 
     gpsItem.onclick = () => {
       setActiveLocation(lastGPS);
@@ -1646,7 +1726,7 @@ function renderSavedLocations() {
 
     gpsList.appendChild(gpsItem);
   } else {
-    gpsList.innerHTML = `<div class="empty-state">No GPS location detected yet. Click button above.</div>`;
+    gpsList.innerHTML = `<div class="empty-state">No GPS location detected. Click the button above to acquire your current location.</div>`;
   }
 
   // 2. Render Saved Locations Section
@@ -1670,6 +1750,7 @@ function renderSavedLocations() {
     const deleteBtn = document.createElement("button");
     deleteBtn.className = "delete-btn";
     deleteBtn.textContent = "✕";
+    deleteBtn.setAttribute("title", `Delete ${loc.name}`);
     deleteBtn.setAttribute("aria-label", `Delete ${loc.name}`);
     const targetId = loc.id || loc.name;
     deleteBtn.onclick = (e) => deleteLocation(e, targetId);
@@ -1687,11 +1768,47 @@ function renderSavedLocations() {
   });
 }
 
+function refreshGPSLocation(event, btnElement) {
+  if (event) event.stopPropagation();
+  locateUser({ closeDrawer: false, forceFresh: true, targetBtn: btnElement });
+}
+
+function deleteGPSLocation(event) {
+  if (event) event.stopPropagation();
+
+  const lastGPS = getLastGPSLocation();
+  removeLastGPSLocation();
+
+  const activeLoc = getActiveLocation();
+  const isCurrentActiveGPS = activeLoc && (
+    activeLoc.isGPS || 
+    (lastGPS && Math.abs(activeLoc.lat - lastGPS.lat) < 0.001 && Math.abs(activeLoc.lon - lastGPS.lon) < 0.001)
+  );
+
+  if (isCurrentActiveGPS) {
+    const saved = getStoredLocations();
+    const fallback = saved.length > 0 ? saved[0] : DEFAULT_LOCATION;
+    setActiveLocation(fallback);
+    fetchWeather(fallback.lat, fallback.lon, fallback.name);
+  }
+
+  renderSavedLocations();
+}
+
 function deleteLocation(event, id) {
   event.stopPropagation();
   let saved = getStoredLocations();
   saved = saved.filter(loc => (loc.id ? loc.id !== id : loc.name !== id));
   saveLocations(saved);
+
+  const activeLoc = getActiveLocation();
+  if (activeLoc && (activeLoc.id === id || activeLoc.name === id)) {
+    const lastGPS = getLastGPSLocation();
+    const fallback = lastGPS || (saved.length > 0 ? saved[0] : DEFAULT_LOCATION);
+    setActiveLocation(fallback);
+    fetchWeather(fallback.lat, fallback.lon, fallback.name);
+  }
+
   renderSavedLocations();
 }
 

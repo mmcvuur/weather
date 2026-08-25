@@ -673,6 +673,38 @@ body {
   letter-spacing: 0.5px;
 }
 
+.location-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.location-action-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  cursor: pointer;
+  line-height: 1;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.location-action-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.08);
+}
+
+.location-action-btn:active {
+  transform: scale(0.95);
+}
+
 .location-item-info {
   display: flex;
   flex-direction: column;
@@ -690,11 +722,49 @@ body {
 
 .delete-btn {
   color: #ff7675;
-  background: transparent;
-  border: none;
-  font-size: 16px;
+  background: rgba(255, 118, 117, 0.15);
+  border: 1px solid rgba(255, 118, 117, 0.3);
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
   cursor: pointer;
-  padding: 4px;
+  padding: 0;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.delete-btn:hover {
+  background: rgba(255, 118, 117, 0.3);
+  color: #ff4d4d;
+  transform: scale(1.08);
+}
+
+.delete-btn:active {
+  transform: scale(0.95);
+}
+
+.gps-action-btn.locating {
+  opacity: 0.75;
+  cursor: wait;
+  pointer-events: none;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinning {
+  display: inline-block;
+  animation: spin 0.8s linear infinite !important;
 }
 
 .empty-state {
