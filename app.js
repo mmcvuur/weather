@@ -476,7 +476,7 @@ function updateGPSInBackground() {
 
 async function getCityName(lat, lon) {
   try {
-    const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`;
+    const url = `https://api-bdc.io/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`;
     const res = await fetch(url);
     if (!res.ok) throw new Error("Reverse geocode HTTP error");
     const data = await res.json();
@@ -759,9 +759,24 @@ function clearRadarLayers() {
 
 async function loadPrecipitationRadar() {
   try {
-    const res = await fetch("https://api.rainviewer.com/public/weather-maps.json");
-    if (!res.ok) throw new Error("RainViewer API error");
-    const data = await res.json();
+    let data = null;
+
+    // Primary source: LibreWXR (Open-Source, FOSS, Privacy-first)
+    try {
+      const res = await fetch("https://api.librewxr.net/public/weather-maps.json");
+      if (res.ok) {
+        data = await res.json();
+      }
+    } catch (primaryErr) {
+      console.warn("LibreWXR primary endpoint unreachable, attempting fallback:", primaryErr);
+    }
+
+    // Fallback source: RainViewer
+    if (!data || !data.host || !data.radar) {
+      const fallbackRes = await fetch("https://api.rainviewer.com/public/weather-maps.json");
+      if (!fallbackRes.ok) throw new Error("Radar API error");
+      data = await fallbackRes.json();
+    }
 
     if (data && data.host && data.radar && data.radar.past && data.radar.past.length > 0) {
       const rawFrames = [...data.radar.past, ...(data.radar.nowcast || [])];

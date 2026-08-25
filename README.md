@@ -29,7 +29,7 @@ An authentic, feature-packed Progressive Web App (PWA) recreating the native App
   - Actionable advice badges (e.g., *Bring Umbrella*, *Dress Warm*, *High UV / Wear Sunscreen*, *Optimal Running Weather*).
 
 ### 🛰️ Live Precipitation Radar Map
-- Integrated interactive radar viewer powered by **Leaflet** and **RainViewer API**:
+- Integrated interactive radar viewer powered by **Leaflet** and **LibreWXR API** (with RainViewer fallback):
   - Live animated past and nowcast radar tile overlays.
   - Playback controls with timeline frame stepping and reset to live view.
   - **Fullscreen Radar View**: Expandable modal map with smooth panning and GPS location recentering.
@@ -68,11 +68,11 @@ An authentic, feature-packed Progressive Web App (PWA) recreating the native App
 |---|---|
 | **Frontend** | Vanilla JavaScript (ES6+), HTML5, Vanilla CSS3 (Glassmorphism, Flexbox, CSS Grid) |
 | **Graphics Engine** | HTML5 Canvas 2D API (Dynamic Weather Particles) |
-| **Mapping & Radar** | Leaflet.js, RainViewer Radar API, CARTO Dark Matter Tiles |
+| **Mapping & Radar** | Leaflet.js, LibreWXR Radar API (RainViewer fallback), CARTO Dark Matter Tiles |
 | **Weather Data API** | [Open-Meteo Weather Forecast API](https://open-meteo.com/) (No API key required) |
 | **Air Quality API** | [Open-Meteo Air Quality API](https://open-meteo.com/en/docs/air-quality-api) |
 | **Geocoding API** | [Open-Meteo Geocoding API](https://open-meteo.com/en/docs/geocoding-api) |
-| **Reverse Geocoding** | [BigDataCloud Reverse Geocoding API](https://www.bigdatacloud.com/) |
+| **Reverse Geocoding** | [BigDataCloud Reverse Geocoding API](https://api-bdc.io/) |
 | **Storage & PWA** | Service Worker API, Cache Storage API, LocalStorage, Web App Manifest |
 
 ---
@@ -171,7 +171,7 @@ This automatically:
 ## 🔒 Privacy & Open Data
 
 - **Zero Tracking**: No telemetry, analytics, or user tracking.
-- **Open Data**: Powered by Open-Meteo and RainViewer public weather infrastructure.
+- **Open Data**: Powered by Open-Meteo and LibreWXR public weather infrastructure.
 - **Local Storage**: Location history and unit preferences are stored exclusively on your device.
 
 ---
