@@ -15,11 +15,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Weather" />
-  <!-- Typography: JetBrains Mono (Fixed / Monospace Variable Font) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet" />
-
+  <!-- Typography: Local JetBrains Mono Font -->
+  <link rel="preload" href="fonts/JetBrainsMono[wght].woff2" as="font" type="font/woff2" crossorigin />
   <link rel="stylesheet" href="styles.css" />
   <!-- Leaflet CSS & JS for Precipitation Map -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
@@ -226,7 +223,7 @@
           </div>
           <div class="info-meta-row">
             <span class="info-meta-label">App Version</span>
-            <span class="info-meta-value" id="app-version-val">v2.5.7</span>
+            <span class="info-meta-value" id="app-version-val">v2.5.8</span>
           </div>
           <div class="info-meta-row">
             <span class="info-meta-label">Code Repository (FOSS)</span>

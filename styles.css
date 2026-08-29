@@ -1,3 +1,153 @@
+/* ==========================================================================
+   JETBRAINS MONO LOCAL WEBFONT DEFINITIONS
+   ========================================================================== */
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('fonts/JetBrainsMono-Thin.woff2') format('woff2');
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('fonts/JetBrainsMono-ThinItalic.woff2') format('woff2');
+  font-weight: 100;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('fonts/JetBrainsMono-ExtraLight.woff2') format('woff2');
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('fonts/JetBrainsMono-ExtraLightItalic.woff2') format('woff2');
+  font-weight: 200;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('fonts/JetBrainsMono-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('fonts/JetBrainsMono-LightItalic.woff2') format('woff2');
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('fonts/JetBrainsMono-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('fonts/JetBrainsMono-Italic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('fonts/JetBrainsMono-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('fonts/JetBrainsMono-MediumItalic.woff2') format('woff2');
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('fonts/JetBrainsMono-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('fonts/JetBrainsMono-SemiBoldItalic.woff2') format('woff2');
+  font-weight: 600;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('fonts/JetBrainsMono-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('fonts/JetBrainsMono-BoldItalic.woff2') format('woff2');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('fonts/JetBrainsMono-ExtraBold.woff2') format('woff2');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('fonts/JetBrainsMono-ExtraBoldItalic.woff2') format('woff2');
+  font-weight: 800;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('fonts/JetBrainsMono[wght].woff2') format('woff2-variations'),
+       url('fonts/JetBrainsMono[wght].woff2') format('woff2');
+  font-weight: 100 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('fonts/JetBrainsMono-Italic[wght].woff2') format('woff2-variations'),
+       url('fonts/JetBrainsMono-Italic[wght].woff2') format('woff2');
+  font-weight: 100 800;
+  font-style: italic;
+  font-display: swap;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -113,7 +263,7 @@ body {
 
 .top-bar-title {
   font-size: 20px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: -0.3px;
   opacity: 0.95;
 }
@@ -126,7 +276,7 @@ body {
   color: #ffffff;
   border-radius: 12px;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -175,8 +325,8 @@ body {
 }
 
 .city-name {
-  font-size: 32px;
-  font-weight: 500;
+  font-size: 30px;
+  font-weight: 700;
   letter-spacing: -0.5px;
 }
 
@@ -189,7 +339,7 @@ body {
 }
 
 .current-temp {
-  font-size: 80px;
+  font-size: 78px;
   font-weight: 200;
   line-height: 1;
   font-variant-numeric: tabular-nums;
@@ -197,7 +347,7 @@ body {
 }
 
 .degree-symbol {
-  font-size: 40px;
+  font-size: 38px;
   font-weight: 200;
   line-height: 1;
   position: absolute;
@@ -206,27 +356,28 @@ body {
 }
 
 .condition-text {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 500;
-  opacity: 0.9;
+  font-style: italic;
+  opacity: 0.92;
   margin-top: 6px;
 }
 
 .temp-range {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
-  opacity: 0.8;
-  margin-top: 2px;
+  opacity: 0.85;
+  margin-top: 3px;
   font-variant-numeric: tabular-nums;
 }
 
 /* Section Headers */
 .card-title {
   font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
   text-transform: uppercase;
-  opacity: 0.6;
+  opacity: 0.65;
   margin-bottom: 10px;
   display: flex;
   align-items: center;
@@ -257,8 +408,8 @@ body {
 }
 
 .hourly-time {
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 13px;
+  font-weight: 600;
   line-height: 1;
 }
 
@@ -293,6 +444,7 @@ body {
 .hourly-precip {
   font-size: 11px;
   font-weight: 700;
+  font-style: italic;
   color: #64d2ff;
   font-variant-numeric: tabular-nums;
   line-height: 1;
@@ -305,7 +457,7 @@ body {
 }
 
 .hourly-temp, .hourly-event-label {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   color: #ffffff;
@@ -325,12 +477,13 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
 }
 
 .day-name {
   width: 50px;
+  font-weight: 600;
 }
 
 .day-icon {
@@ -353,8 +506,14 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+.low-temp {
+  font-weight: 400;
+  opacity: 0.75;
+}
+
 .high-temp {
   text-align: left;
+  font-weight: 700;
 }
 
 .bar-bg {
@@ -393,16 +552,18 @@ body {
 }
 
 .detail-value {
-  font-size: 28px;
-  font-weight: 400;
+  font-size: 26px;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
   line-height: 1.1;
 }
 
 .detail-sub {
   font-size: 12px;
+  font-weight: 400;
+  font-style: italic;
   opacity: 0.8;
-  line-height: 1.2;
+  line-height: 1.25;
 }
 
 /* --- PRECIPITATION MAP CARD --- */
@@ -594,7 +755,7 @@ body {
   border: none;
   color: rgba(255, 255, 255, 0.65);
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   padding: 4px 10px;
   border-radius: 14px;
   cursor: pointer;
@@ -610,6 +771,7 @@ body {
 .cache-status-badge {
   font-size: 11px;
   font-weight: 600;
+  font-style: italic;
   padding: 3px 8px;
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.15);
@@ -630,12 +792,15 @@ body {
   border: none;
   background: rgba(255, 255, 255, 0.15);
   color: #fff;
-  font-size: 16px;
+  font-size: 15px;
+  font-weight: 500;
   outline: none;
 }
 
 .search-input::placeholder {
   color: rgba(255, 255, 255, 0.5);
+  font-style: italic;
+  font-weight: 400;
 }
 
 .search-results, .saved-locations-list {
@@ -667,6 +832,7 @@ body {
 .gps-badge {
   font-size: 11px;
   font-weight: 700;
+  font-style: italic;
   color: #38bdf8;
   background: rgba(56, 189, 248, 0.25);
   padding: 3px 8px;
@@ -712,13 +878,15 @@ body {
 }
 
 .location-item-name {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
 }
 
 .location-item-sub {
   font-size: 12px;
-  opacity: 0.7;
+  font-weight: 400;
+  font-style: italic;
+  opacity: 0.75;
 }
 
 .delete-btn {
@@ -919,15 +1087,17 @@ body {
 }
 
 .aqi-level-text {
-  font-size: 20px;
-  font-weight: 600;
+  font-size: 19px;
+  font-weight: 700;
   letter-spacing: -0.3px;
 }
 
 .aqi-desc {
   font-size: 13px;
+  font-weight: 400;
+  font-style: italic;
   opacity: 0.85;
-  line-height: 1.35;
+  line-height: 1.4;
 }
 
 .aqi-bar-container {
@@ -995,8 +1165,8 @@ body {
 }
 
 .wind-row-value {
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.75);
+  font-weight: 700;
+  color: #ffffff;
   font-variant-numeric: tabular-nums;
 }
 
@@ -1023,15 +1193,16 @@ body {
 }
 
 .compass-svg-speed {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 700;
   fill: #ffffff;
   font-variant-numeric: tabular-nums;
 }
 
 .compass-svg-unit {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
+  font-style: italic;
   fill: rgba(255, 255, 255, 0.75);
 }
 
@@ -1065,7 +1236,7 @@ body {
 }
 
 .info-meta-label {
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(255, 255, 255, 0.6);
   font-weight: 500;
 }
 
@@ -1080,6 +1251,7 @@ body {
 .info-meta-link {
   color: rgba(255, 255, 255, 0.95);
   font-weight: 600;
+  font-style: italic;
   background: rgba(255, 255, 255, 0.12);
   padding: 3px 8px;
   border-radius: 6px;
@@ -1158,7 +1330,7 @@ body {
 .ai-card-title {
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.6px;
   text-transform: uppercase;
   color: #ffffff;
   opacity: 0.95;
@@ -1174,8 +1346,9 @@ body {
 
 .ai-summary-time {
   font-size: 11px;
-  opacity: 0.65;
+  opacity: 0.7;
   font-weight: 400;
+  font-style: italic;
 }
 
 .ai-refresh-btn {
@@ -1219,8 +1392,8 @@ body {
 }
 
 .ai-summary-text {
-  font-size: 14px;
-  line-height: 1.45;
+  font-size: 13.5px;
+  line-height: 1.5;
   font-weight: 400;
   color: rgba(255, 255, 255, 0.95);
   margin: 0 0 10px 0;
@@ -1241,8 +1414,8 @@ body {
   gap: 5px;
   padding: 4px 10px;
   border-radius: 20px;
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 11.5px;
+  font-weight: 600;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);

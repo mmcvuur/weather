@@ -1,5 +1,5 @@
 // --- SERVICE WORKER VERSIONING & CACHE SYSTEM ---
-const SW_VERSION = '2026.08.29.151637';
+const SW_VERSION = '2026.08.29.153649';
 const CACHE_NAME = `ios-weather-${SW_VERSION}`;
 
 const ASSETS_TO_CACHE = [
@@ -13,7 +13,25 @@ const ASSETS_TO_CACHE = [
   './favicon.png',
   './apple-touch-icon.png',
   './icon-192.png',
-  './icon-512.png'
+  './icon-512.png',
+  './fonts/JetBrainsMono-Thin.woff2',
+  './fonts/JetBrainsMono-ThinItalic.woff2',
+  './fonts/JetBrainsMono-ExtraLight.woff2',
+  './fonts/JetBrainsMono-ExtraLightItalic.woff2',
+  './fonts/JetBrainsMono-Light.woff2',
+  './fonts/JetBrainsMono-LightItalic.woff2',
+  './fonts/JetBrainsMono-Regular.woff2',
+  './fonts/JetBrainsMono-Italic.woff2',
+  './fonts/JetBrainsMono-Medium.woff2',
+  './fonts/JetBrainsMono-MediumItalic.woff2',
+  './fonts/JetBrainsMono-SemiBold.woff2',
+  './fonts/JetBrainsMono-SemiBoldItalic.woff2',
+  './fonts/JetBrainsMono-Bold.woff2',
+  './fonts/JetBrainsMono-BoldItalic.woff2',
+  './fonts/JetBrainsMono-ExtraBold.woff2',
+  './fonts/JetBrainsMono-ExtraBoldItalic.woff2',
+  './fonts/JetBrainsMono[wght].woff2',
+  './fonts/JetBrainsMono-Italic[wght].woff2'
 ];
 
 // Install Event: Skip waiting immediately & cache fresh assets
