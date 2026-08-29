@@ -746,7 +746,7 @@ let currentFrameIndex = 0;
 let isRadarPlaying = false;
 let radarPlaybackTimer = null;
 
-const CARTO_API_KEY = ""; // Optional: Add key from carto.com/basemaps/apikey if CARTO tiles are preferred
+const CARTO_API_KEY = "cb1_2iez_1_744fcfd7feb10866db03cc60";
 
 function addDarkBasemapLayers(targetMap) {
   if (CARTO_API_KEY) {
