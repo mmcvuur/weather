@@ -456,10 +456,36 @@ body {
   display: none;
 }
 
-.hourly-temp, .hourly-event-label {
+.hourly-temp {
+  position: relative;
+  display: inline-flex;
+  justify-content: center;
+  align-items: flex-start;
   font-size: 15px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
+  color: #ffffff;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.hourly-temp-val {
+  line-height: 1;
+}
+
+.hourly-degree {
+  position: absolute;
+  left: 100%;
+  top: 0;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  margin-left: 1px;
+}
+
+.hourly-event-label {
+  font-size: 14px;
+  font-weight: 600;
   color: #ffffff;
   line-height: 1;
   text-align: center;

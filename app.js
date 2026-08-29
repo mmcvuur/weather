@@ -1468,7 +1468,7 @@ function renderHourly(data) {
         <span class="hourly-time">${hourLabel}</span>
         <span class="hourly-icon">${meta.icon}</span>
         ${precipHtml}
-        <span class="hourly-temp">${temp}°</span>
+        <span class="hourly-temp"><span class="hourly-temp-val">${temp}</span><span class="hourly-degree">°</span></span>
       </div>
     `);
 
