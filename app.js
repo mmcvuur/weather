@@ -750,7 +750,7 @@ const CARTO_API_KEY = "cb1_2iez_1_744fcfd7feb10866db03cc60";
 
 function addDarkBasemapLayers(targetMap) {
   if (CARTO_API_KEY) {
-    L.tileLayer(`https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?api_key=${encodeURIComponent(CARTO_API_KEY)}`, {
+    L.tileLayer(`https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png?key=${encodeURIComponent(CARTO_API_KEY)}`, {
       maxZoom: 18,
       subdomains: "abcd",
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>'

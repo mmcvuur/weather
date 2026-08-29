@@ -1,5 +1,5 @@
 // --- SERVICE WORKER VERSIONING & CACHE SYSTEM ---
-const SW_VERSION = '2026.08.29.085226';
+const SW_VERSION = '2026.08.29.090335';
 const CACHE_NAME = `ios-weather-${SW_VERSION}`;
 
 const ASSETS_TO_CACHE = [
@@ -50,12 +50,11 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     fetch(event.request)
       .then((networkResponse) => {
-        // Cache static assets locally on successful fetches
+        // Cache static app assets locally on successful fetches
         if (
           networkResponse &&
-          (networkResponse.status === 200 || networkResponse.type === 'opaque') &&
-          !event.request.url.includes('api.') &&
-          !event.request.url.includes('open-meteo')
+          networkResponse.status === 200 &&
+          event.request.url.startsWith(self.location.origin)
         ) {
           const responseClone = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
