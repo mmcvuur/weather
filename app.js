@@ -746,6 +746,30 @@ let currentFrameIndex = 0;
 let isRadarPlaying = false;
 let radarPlaybackTimer = null;
 
+const CARTO_API_KEY = ""; // Optional: Add key from carto.com/basemaps/apikey if CARTO tiles are preferred
+
+function addDarkBasemapLayers(targetMap) {
+  if (CARTO_API_KEY) {
+    L.tileLayer(`https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?api_key=${encodeURIComponent(CARTO_API_KEY)}`, {
+      maxZoom: 18,
+      subdomains: "abcd",
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>'
+    }).addTo(targetMap);
+  } else {
+    // Default: Free, keyless Esri World Dark Gray Canvas (Dark iOS aesthetic, no watermarks)
+    L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}", {
+      maxZoom: 16,
+      attribution: '&copy; <a href="https://www.esri.com/">Esri</a>, DeLorme, NAVTEQ'
+    }).addTo(targetMap);
+
+    // Reference layer overlay (crisp place names & boundaries over dark base and radar)
+    L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}", {
+      maxZoom: 16,
+      zIndex: 150
+    }).addTo(targetMap);
+  }
+}
+
 function initOrUpdateMap(lat, lon, cityName) {
   currentMapCoords = { lat, lon };
 
@@ -773,12 +797,7 @@ function initOrUpdateMap(lat, lon, cityName) {
       keyboard: false
     });
 
-    // Dark CartoDB Dark Matter basemap matching iOS dark theme
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-      maxZoom: 18,
-      subdomains: "abcd",
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>'
-    }).addTo(map);
+    addDarkBasemapLayers(map);
 
     L.control.zoom({ position: 'topright' }).addTo(map);
 
@@ -1037,11 +1056,7 @@ function initOrUpdateFullscreenMap() {
       attributionControl: true
     });
 
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-      maxZoom: 18,
-      subdomains: "abcd",
-      attribution: '&copy; OpenStreetMap &copy; CARTO'
-    }).addTo(fsMap);
+    addDarkBasemapLayers(fsMap);
 
     if (radarFrames.length > 0) {
       fsRadarTileLayers = radarFrames.map((frame, idx) => {
