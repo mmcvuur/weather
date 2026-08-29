@@ -391,6 +391,13 @@ function renderAllWeather(weatherData, aqiData, lat, lon, cityName, isCached = f
   const displayCity = cityName ? cityName.split(',')[0].trim() : "Current Location";
   document.getElementById("city").textContent = displayCity;
 
+  if (weatherData && weatherData.current && weatherData.current.temperature_2m !== undefined) {
+    const currentTemp = convertTemp(weatherData.current.temperature_2m);
+    document.title = `${displayCity} ${currentTemp}°`;
+  } else {
+    document.title = displayCity;
+  }
+
   renderCurrent(weatherData);
   renderAISummary(weatherData, aqiData);
   renderHourly(weatherData);
@@ -591,6 +598,7 @@ async function fetchWeather(lat, lon, cityName) {
       document.getElementById("condition").textContent = "Unable to fetch weather data";
       document.getElementById("current-temp").textContent = "--";
       document.getElementById("today-range").textContent = "H: --°  L: --°";
+      document.title = `${displayCity} --°`;
       const aiTextEl = document.getElementById("ai-summary-text");
       if (aiTextEl) aiTextEl.textContent = "AI summary unavailable. Check network connection or try again.";
     } else {
