@@ -2044,6 +2044,24 @@ class WeatherCanvasEngine {
           twinkleDir: Math.random() > 0.5 ? 1 : -1
         });
       }
+    } else if (code === 3) {
+      // Overcast: soft, layered horizontal cloud banks with parallax drift
+      const count = 6;
+      for (let i = 0; i < count; i++) {
+        const radiusX = Math.random() * (w * 0.45) + w * 0.4;
+        this.particles.push({
+          x: Math.random() * (w + radiusX * 2) - radiusX,
+          y: Math.random() * (h * 0.65) - 30,
+          radiusX: radiusX,
+          radiusY: Math.random() * 90 + 60,
+          speedX: Math.random() * 0.25 + 0.12,
+          speedY: (Math.random() - 0.5) * 0.04,
+          baseOpacity: Math.random() * 0.08 + 0.05,
+          opacity: Math.random() * 0.08 + 0.05,
+          pulse: Math.random() * Math.PI * 2,
+          pulseSpeed: Math.random() * 0.008 + 0.004
+        });
+      }
     }
   }
 
@@ -2210,6 +2228,50 @@ class WeatherCanvasEngine {
         this.ctx.beginPath();
         this.ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
         this.ctx.fill();
+      }
+    } else if (code === 3) {
+      this.time = (this.time || 0) + 1;
+
+      // 1. Diffused Overcast Atmospheric Top Haze
+      const topHaze = this.ctx.createLinearGradient(0, 0, 0, this.height * 0.65);
+      const hazeColor = this.isDay ? '220, 230, 242' : '40, 50, 75';
+      topHaze.addColorStop(0, `rgba(${hazeColor}, ${this.isDay ? 0.16 : 0.22})`);
+      topHaze.addColorStop(0.5, `rgba(${hazeColor}, ${this.isDay ? 0.08 : 0.10})`);
+      topHaze.addColorStop(1, `rgba(${hazeColor}, 0)`);
+      this.ctx.fillStyle = topHaze;
+      this.ctx.fillRect(0, 0, this.width, this.height * 0.65);
+
+      // 2. Layered Drifting Cloud Banks
+      const cloudRGB = this.isDay ? '240, 245, 252' : '120, 138, 168';
+      for (const p of this.particles) {
+        p.x += p.speedX;
+        p.y += p.speedY;
+        p.pulse += p.pulseSpeed;
+
+        const currentOpacity = p.baseOpacity + Math.sin(p.pulse) * 0.018;
+
+        if (p.x - p.radiusX > this.width) {
+          p.x = -p.radiusX;
+          p.y = Math.random() * (this.height * 0.65) - 30;
+        }
+        if (p.y < -p.radiusY) p.y = this.height * 0.65;
+        if (p.y > this.height * 0.65 + p.radiusY) p.y = -p.radiusY;
+
+        this.ctx.save();
+        this.ctx.translate(p.x, p.y);
+        this.ctx.scale(1, p.radiusY / p.radiusX);
+
+        const grad = this.ctx.createRadialGradient(0, 0, 0, 0, 0, p.radiusX);
+        grad.addColorStop(0, `rgba(${cloudRGB}, ${Math.max(0, currentOpacity)})`);
+        grad.addColorStop(0.45, `rgba(${cloudRGB}, ${Math.max(0, currentOpacity * 0.65)})`);
+        grad.addColorStop(0.85, `rgba(${cloudRGB}, ${Math.max(0, currentOpacity * 0.15)})`);
+        grad.addColorStop(1, `rgba(${cloudRGB}, 0)`);
+
+        this.ctx.fillStyle = grad;
+        this.ctx.beginPath();
+        this.ctx.arc(0, 0, p.radiusX, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.restore();
       }
     }
   }

@@ -21,6 +21,7 @@ An authentic, feature-packed Progressive Web App (PWA) recreating the native App
   - **Fog / Mist**: Drifting low-opacity radial gradient mist particles.
   - **Starry Night**: Twinkling stars on clear nocturnal skies.
   - **Clear Blue Sky**: Ambient solar glow, gentle drifting sunbeams, and floating sunlight dust motes.
+  - **Overcast**: Diffused atmospheric top haze and layered, slow-drifting overcast cloud banks with parallax depth.
 - Automatically pauses during tab inactivity via Page Visibility API to save battery and GPU cycles.
 
 ### 🤖 AI Weather Summary
