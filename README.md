@@ -7,9 +7,10 @@ An authentic, feature-packed Progressive Web App (PWA) recreating the native App
 ## ✨ Features
 
 ### 🎨 Authentic iOS Design & Micro-Interactions
-- **Glassmorphic UI**: High-fidelity translucent frosted cards, depth layering, smooth transitions, and Apple SF Pro typography.
+- **Glassmorphic UI & Typography**: High-fidelity translucent frosted cards, depth layering, smooth transitions, and a crisp **JetBrains Mono** monospace typographic hierarchy (with bold metrics, italic conditions and subtitles, and extra-light hero temperature).
 - **Adaptive Day / Night Themes**: Ambient gradient backgrounds shift smoothly based on local solar time and current weather conditions.
 - **Mobile-First & Desktop Frame**: Responsive layout that renders as an edge-to-edge mobile app on smartphones and an elegant iPhone-framed container on desktop screens.
+- **Dynamic Browser Tab**: Automatically updates the tab title with the active city name and current temperature (e.g., `Amsterdam 22°`).
 - **Pull-to-Refresh**: Native touch-enabled pull-down gesture to refresh current weather data with animated status indicators.
 
 ### 🌧️ Dynamic Weather Particle Canvas
@@ -37,7 +38,7 @@ An authentic, feature-packed Progressive Web App (PWA) recreating the native App
 
 ### 📊 Comprehensive Weather Data & Forecasts
 - **Current Conditions**: Temperature, high/low range, condition description, and WMO weather icons.
-- **Hourly Forecast**: 24-hour horizontal scrolling forecast with temperature trend curves, precipitation probabilities, and solar sunrise/sunset markers.
+- **Hourly Forecast**: 24-hour horizontal scrolling forecast with centered temperatures, precipitation probabilities, and solar sunrise/sunset markers.
 - **10-Day Forecast**: Multi-day outlook with condition icons and normalized temperature range gradient bars.
 - **Wind Compass**: Custom SVG analog compass showing live wind direction, wind speed, and gust metrics.
 - **Air Quality Index (AQI)**: US AQI rating, European AQI, PM2.5, PM10 metrics, and an iOS-style colored spectrum indicator with health advisories.
@@ -57,6 +58,7 @@ An authentic, feature-packed Progressive Web App (PWA) recreating the native App
 
 ### 📱 Progressive Web App (PWA) & Offline Support
 - **Installable**: Full Web App Manifest support with standalone mode and custom high-res icons for iOS Home Screen, Android, and Desktop.
+- **Local Font Assets**: 100% self-hosted JetBrains Mono font files cached offline with zero third-party font network dependencies.
 - **Service Worker Caching**: Offline caching strategy allowing instant launches even without network connectivity.
 - **Cache Status Indicator**: Visual notification badge when viewing cached or offline meteorological data.
 
@@ -67,6 +69,7 @@ An authentic, feature-packed Progressive Web App (PWA) recreating the native App
 | Layer | Technologies / Sources |
 |---|---|
 | **Frontend** | Vanilla JavaScript (ES6+), HTML5, Vanilla CSS3 (Glassmorphism, Flexbox, CSS Grid) |
+| **Typography** | [JetBrains Mono](https://www.jetbrains.com/lp/mono/) (Self-hosted variable & static WOFF2 webfonts) |
 | **Graphics Engine** | HTML5 Canvas 2D API (Dynamic Weather Particles) |
 | **Mapping & Radar** | Leaflet.js, LibreWXR Radar API (RainViewer fallback), CARTO Dark Matter Tiles |
 | **Weather Data API** | [Open-Meteo Weather Forecast API](https://open-meteo.com/) (No API key required) |
@@ -82,10 +85,11 @@ An authentic, feature-packed Progressive Web App (PWA) recreating the native App
 ```text
 .
 ├── index.html           # Main HTML structure, layout templates, and modal drawers
-├── styles.css           # iOS-inspired styling, glassmorphism tokens, and responsive rules
+├── styles.css           # Glassmorphism styling, responsive layout, and typography rules
 ├── app.js               # Application logic, state, APIs, particle engine, and UI rendering
 ├── sw.js                # Service Worker for asset caching and offline resilience
 ├── bump-version.js      # Utility script for semantic versioning & cache timestamp updates
+├── fonts/               # Self-hosted JetBrains Mono WOFF2 webfont files
 ├── manifest.json        # PWA configuration and metadata
 ├── favicon.ico          # Legacy ICO favicon
 ├── favicon.svg          # Vector favicon
