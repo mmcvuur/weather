@@ -1933,6 +1933,7 @@ class WeatherCanvasEngine {
     this.isDay = 1;
     this.width = 0;
     this.height = 0;
+    this.time = 0;
 
     this.init();
   }
@@ -2024,6 +2025,22 @@ class WeatherCanvasEngine {
           radius: Math.random() * 1.3 + 0.6,
           opacity: Math.random() * 0.7 + 0.2,
           twinkleSpeed: Math.random() * 0.03 + 0.008,
+          twinkleDir: Math.random() > 0.5 ? 1 : -1
+        });
+      }
+    } else if (this.isDay && [0, 1, 2].includes(code)) {
+      const count = 25;
+      for (let i = 0; i < count; i++) {
+        this.particles.push({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          radius: Math.random() * 1.6 + 0.7,
+          speedY: -(Math.random() * 0.35 + 0.15),
+          swing: Math.random() * Math.PI * 2,
+          swingSpeed: Math.random() * 0.015 + 0.008,
+          swingAmp: Math.random() * 0.4 + 0.2,
+          opacity: Math.random() * 0.5 + 0.2,
+          twinkleSpeed: Math.random() * 0.018 + 0.006,
           twinkleDir: Math.random() > 0.5 ? 1 : -1
         });
       }
@@ -2120,6 +2137,76 @@ class WeatherCanvasEngine {
         if (p.opacity <= 0.15) { p.opacity = 0.15; p.twinkleDir = 1; }
 
         this.ctx.fillStyle = `rgba(255, 255, 255, ${p.opacity})`;
+        this.ctx.beginPath();
+        this.ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        this.ctx.fill();
+      }
+    } else if (this.isDay && [0, 1, 2].includes(code)) {
+      this.time = (this.time || 0) + 1;
+      const cx = this.width * 0.85;
+      const cy = this.height * 0.05;
+      const sunPulse = Math.sin(this.time * 0.02) * 0.04;
+
+      // 1. Soft Ambient Sun Glow
+      const glowRadius = Math.min(this.width, this.height) * 0.7;
+      const sunGrad = this.ctx.createRadialGradient(cx, cy, 0, cx, cy, glowRadius);
+      sunGrad.addColorStop(0, `rgba(255, 252, 220, ${0.20 + sunPulse})`);
+      sunGrad.addColorStop(0.35, `rgba(255, 235, 175, ${0.09 + sunPulse * 0.5})`);
+      sunGrad.addColorStop(0.75, `rgba(255, 220, 140, 0.02)`);
+      sunGrad.addColorStop(1, 'rgba(255, 220, 140, 0)');
+      this.ctx.fillStyle = sunGrad;
+      this.ctx.beginPath();
+      this.ctx.arc(cx, cy, glowRadius, 0, Math.PI * 2);
+      this.ctx.fill();
+
+      // 2. Soft Atmospheric Sunbeams
+      const beamCount = 4;
+      const baseAngles = [1.9, 2.3, 2.7, 3.1];
+      const beamLength = Math.max(this.width, this.height) * 1.3;
+
+      for (let i = 0; i < beamCount; i++) {
+        const angleOsc = Math.sin(this.time * 0.012 + i * 1.4) * 0.035;
+        const rayAngle = baseAngles[i] + angleOsc;
+        const raySpread = 0.11 + Math.sin(this.time * 0.018 + i) * 0.015;
+        const rayAlpha = 0.045 + Math.sin(this.time * 0.02 + i * 2) * 0.018;
+
+        const x1 = cx + Math.cos(rayAngle - raySpread) * beamLength;
+        const y1 = cy + Math.sin(rayAngle - raySpread) * beamLength;
+        const x2 = cx + Math.cos(rayAngle + raySpread) * beamLength;
+        const y2 = cy + Math.sin(rayAngle + raySpread) * beamLength;
+
+        const beamGrad = this.ctx.createLinearGradient(cx, cy, (x1 + x2) / 2, (y1 + y2) / 2);
+        beamGrad.addColorStop(0, `rgba(255, 250, 220, ${rayAlpha})`);
+        beamGrad.addColorStop(0.45, `rgba(255, 245, 190, ${rayAlpha * 0.5})`);
+        beamGrad.addColorStop(1, 'rgba(255, 245, 190, 0)');
+
+        this.ctx.fillStyle = beamGrad;
+        this.ctx.beginPath();
+        this.ctx.moveTo(cx, cy);
+        this.ctx.lineTo(x1, y1);
+        this.ctx.lineTo(x2, y2);
+        this.ctx.closePath();
+        this.ctx.fill();
+      }
+
+      // 3. Floating Sun Motes / Warm Ambient Particles
+      for (const p of this.particles) {
+        p.opacity += p.twinkleSpeed * p.twinkleDir;
+        if (p.opacity >= 0.7) { p.opacity = 0.7; p.twinkleDir = -1; }
+        if (p.opacity <= 0.15) { p.opacity = 0.15; p.twinkleDir = 1; }
+
+        p.y += p.speedY;
+        p.swing += p.swingSpeed;
+        p.x += Math.sin(p.swing) * p.swingAmp;
+
+        if (p.y < -10) {
+          p.y = this.height + 10;
+          p.x = Math.random() * this.width;
+        }
+        if (p.x < -10) p.x = this.width + 10;
+        if (p.x > this.width + 10) p.x = -10;
+
+        this.ctx.fillStyle = `rgba(255, 250, 220, ${p.opacity})`;
         this.ctx.beginPath();
         this.ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
         this.ctx.fill();
