@@ -301,6 +301,9 @@ let lastAqiData = null;
 let lastFetchLat = null;
 let lastFetchLon = null;
 let lastFetchCity = null;
+let lastDataFetchTime = 0;
+const DATA_REFRESH_INTERVAL_MS = 10 * 60 * 1000; // 10 minutes (600,000 ms)
+let autoRefreshTimerId = null;
 
 // --- UNIT CONVERSION & PREFERENCES ---
 function getPreferredUnit() {
@@ -426,16 +429,67 @@ function renderAllWeather(weatherData, aqiData, lat, lon, cityName, isCached = f
   }
 }
 
+// --- AUTO-REFRESH & DATA RELOAD CONTROLLER (10-MINUTE TIMER) ---
+function refreshActiveWeatherData() {
+  const activeLoc = getActiveLocation();
+  if (!activeLoc) return;
+
+  if (activeLoc.isGPS) {
+    updateGPSInBackground();
+  }
+  fetchWeather(activeLoc.lat, activeLoc.lon, activeLoc.name);
+}
+
+function initAutoRefreshTimer() {
+  if (autoRefreshTimerId) {
+    clearInterval(autoRefreshTimerId);
+    autoRefreshTimerId = null;
+  }
+
+  // Periodic interval: Reload weather data every 10 minutes (600,000 ms)
+  autoRefreshTimerId = setInterval(() => {
+    if (!document.hidden) {
+      console.log("[Auto-Refresh] 10-minute timer triggered - reloading weather data.");
+      refreshActiveWeatherData();
+    }
+  }, DATA_REFRESH_INTERVAL_MS);
+
+  // Background-to-foreground check:
+  // If the user returns to the tab/app after 10+ minutes of inactivity, reload immediately.
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+      const elapsed = Date.now() - lastDataFetchTime;
+      if (lastDataFetchTime > 0 && elapsed >= DATA_REFRESH_INTERVAL_MS) {
+        console.log(`[Auto-Refresh] Tab active after ${Math.round(elapsed / 60000)}m - reloading stale weather data.`);
+        refreshActiveWeatherData();
+      }
+    }
+  });
+
+  // Online status recovery check:
+  window.addEventListener('online', () => {
+    const elapsed = Date.now() - lastDataFetchTime;
+    if (elapsed >= DATA_REFRESH_INTERVAL_MS) {
+      console.log("[Auto-Refresh] Network restored - reloading weather data.");
+      refreshActiveWeatherData();
+    }
+  });
+}
+
 // --- INITIALIZATION ---
 async function initApp() {
   updateUnitButtonsUI();
   initPullToRefresh();
+  initAutoRefreshTimer();
 
   const activeLoc = getActiveLocation();
   const cached = getCachedPayload(activeLoc.lat, activeLoc.lon);
 
   if (cached && cached.weatherData) {
     // Zero-latency startup hydration
+    if (cached.timestamp) {
+      lastDataFetchTime = cached.timestamp;
+    }
     renderAllWeather(cached.weatherData, cached.aqiData, cached.lat, cached.lon, cached.cityName, true);
   }
 
@@ -599,6 +653,7 @@ async function fetchWeather(lat, lon, cityName) {
     }
 
     saveCachedPayload(lat, lon, cityName, weatherData, aqiData);
+    lastDataFetchTime = Date.now();
     renderAllWeather(weatherData, aqiData, lat, lon, cityName, false);
   } catch (error) {
     if (error.name === 'AbortError') return;

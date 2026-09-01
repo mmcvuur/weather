@@ -11,7 +11,7 @@ An authentic, feature-packed Progressive Web App (PWA) recreating the native App
 - **Adaptive Day / Night Themes**: Ambient gradient backgrounds shift smoothly based on local solar time and current weather conditions.
 - **Mobile-First & Desktop Frame**: Responsive layout that renders as an edge-to-edge mobile app on smartphones and an elegant iPhone-framed container on desktop screens.
 - **Dynamic Browser Tab**: Automatically updates the tab title with the active city name and current temperature (e.g., `Amsterdam 22°`).
-- **Pull-to-Refresh**: Native touch-enabled pull-down gesture to refresh current weather data with animated status indicators.
+- **Pull-to-Refresh & Auto-Reload**: Native touch-enabled pull-down gesture and automated 10-minute background reload timer (with Page Visibility & network recovery checks) to keep forecasts continually updated.
 
 ### 🌧️ Dynamic Weather Particle Canvas
 - Custom-built, lightweight 2D HTML5 Canvas particle engine rendering real-time atmospheric visual effects:
