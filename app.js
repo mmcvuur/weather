@@ -15,17 +15,60 @@ function formatVarVal(val) {
   return String(val);
 }
 
+function getEventTheme(eventName) {
+  const isError = eventName.endsWith(':error') || eventName.includes('_error') || eventName.endsWith(':fail');
+  const isWarn = eventName.endsWith(':cancelled') || eventName.includes('fallback') || eventName.endsWith(':noop');
+  const isSuccess = eventName.endsWith(':success') || eventName.includes('hydrated') || eventName.includes('save') || eventName.includes('stored');
+  const isCanvasAI = eventName.startsWith('canvas:') || eventName.startsWith('ai:');
+
+  if (isError) {
+    return {
+      badge: 'color: #f87171; background: rgba(239, 68, 68, 0.22); border: 1px solid rgba(239, 68, 68, 0.45); font-weight: bold; padding: 2px 6px; border-radius: 4px;',
+      text: 'color: #fca5a5; font-family: monospace;',
+      logFn: console.error
+    };
+  }
+  if (isWarn) {
+    return {
+      badge: 'color: #fbbf24; background: rgba(245, 158, 11, 0.22); border: 1px solid rgba(245, 158, 11, 0.45); font-weight: bold; padding: 2px 6px; border-radius: 4px;',
+      text: 'color: #fde68a; font-family: monospace;',
+      logFn: console.warn
+    };
+  }
+  if (isSuccess) {
+    return {
+      badge: 'color: #34d399; background: rgba(16, 185, 129, 0.22); border: 1px solid rgba(16, 185, 129, 0.45); font-weight: bold; padding: 2px 6px; border-radius: 4px;',
+      text: 'color: #94a3b8; font-family: monospace;',
+      logFn: console.log
+    };
+  }
+  if (isCanvasAI) {
+    return {
+      badge: 'color: #c084fc; background: rgba(168, 85, 247, 0.22); border: 1px solid rgba(168, 85, 247, 0.45); font-weight: bold; padding: 2px 6px; border-radius: 4px;',
+      text: 'color: #94a3b8; font-family: monospace;',
+      logFn: console.log
+    };
+  }
+  // Core Lifecycle, Geolocation, Storage & UI (Cyan/Blue)
+  return {
+    badge: 'color: #38bdf8; background: rgba(56, 189, 248, 0.22); border: 1px solid rgba(56, 189, 248, 0.45); font-weight: bold; padding: 2px 6px; border-radius: 4px;',
+    text: 'color: #94a3b8; font-family: monospace;',
+    logFn: console.log
+  };
+}
+
 function logEvent(eventName, params = {}) {
   const varValPairs = Object.entries(params)
     .filter(([_, v]) => v !== undefined && typeof v !== 'function')
     .map(([k, v]) => `${k}=${formatVarVal(v)}`);
 
   const varValStr = varValPairs.length > 0 ? varValPairs.join(', ') : '(none)';
+  const theme = getEventTheme(eventName);
 
-  console.log(
+  theme.logFn(
     `%c[Event: ${eventName}]%c ${varValStr}`,
-    'color: #38bdf8; font-weight: bold; background: rgba(56, 189, 248, 0.12); padding: 2px 6px; border-radius: 4px;',
-    'color: #94a3b8; font-family: monospace;',
+    theme.badge,
+    theme.text,
     params
   );
 }
