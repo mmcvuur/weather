@@ -14,22 +14,30 @@ An authentic, feature-packed Progressive Web App (PWA) recreating the native App
 - **Pull-to-Refresh & Auto-Reload**: Native touch-enabled pull-down gesture and automated 10-minute background reload timer (with Page Visibility & network recovery checks) to keep forecasts continually updated.
 
 ### 🌧️ Dynamic Weather Particle Canvas
-- Custom-built, lightweight 2D HTML5 Canvas particle engine rendering real-time atmospheric visual effects:
-  - **Rain & Downpours**: Angled rain streaks with variable velocities.
-  - **Thunderstorms**: Random lightning flash illumination effects.
-  - **Snowfall**: Soft fluttering snowflakes with sine-wave sway.
-  - **Fog / Mist**: Drifting low-opacity radial gradient mist particles.
-  - **Starry Night**: Twinkling stars on clear nocturnal skies.
+- Custom-built, high-performance 2D HTML5 Canvas particle engine rendering real-time atmospheric visual effects:
+  - **Rain, Drizzle & Downpours**: Angled rain streaks with variable velocities and intensities.
+  - **Thunderstorms & Lightning**: Random ambient lightning flash illumination and dark atmospheric cloud veils.
+  - **Thundersnow**: Combined swirling winter snowflakes with intermittent lightning flash illumination.
+  - **Snowfall & Blowing Snow**: Soft fluttering snowflakes with sine-wave sway and wind-driven horizontal blizzard drift.
+  - **Sleet & Mixed Precipitation**: Combined rainfall streaks and bouncing translucent sleet/ice beads.
+  - **Hail & Ice Pellets**: Fast-falling bouncing hail pellets paired with severe thunderstorm precipitation.
+  - **Fog & Mist**: Drifting low-opacity radial gradient mist particles and atmospheric haze.
+  - **Dust & Sandstorms**: Sweeping warm ochre and cool dust particles propelled horizontally by wind.
+  - **Virga / Distant Precipitation**: High-altitude precipitation streaks evaporating before reaching ground level.
+  - **High Winds & Squalls**: Dynamic aerodynamic wind gust wisps streaming across the screen at high velocities.
+  - **Overcast & Cloud Banks**: Diffused atmospheric top haze and layered, slow-drifting overcast cloud banks with parallax depth and gentle breathing opacity pulses.
+  - **Partly Cloudy**: Soft drifting cumulus cloud banks paired with daylight sun motes or nocturnal stars.
   - **Clear Blue Sky**: Ambient solar glow, gentle drifting sunbeams, and floating sunlight dust motes.
-  - **Overcast**: Diffused atmospheric top haze and layered, slow-drifting overcast cloud banks with parallax depth.
-- Automatically pauses during tab inactivity via Page Visibility API to save battery and GPU cycles.
+  - **Starry Night**: Twinkling starfield across clear nocturnal skies.
+- Automatically pauses during tab inactivity via the Page Visibility API to conserve battery and GPU cycles.
 
 ### 🤖 AI Weather Summary
 - Synthesizes complex multi-dimensional meteorological data into a friendly natural-language forecast summary:
   - 12-hour precipitation windows and peak probabilities.
   - Day high/low temperature outlook and thermal comfort ("feels like" adjustments).
   - High wind gust alerts and UV index warnings.
-  - Actionable advice badges (e.g., *Bring Umbrella*, *Dress Warm*, *High UV / Wear Sunscreen*, *Optimal Running Weather*).
+  - **Actionable Recommendation Badges**: Dynamic chips for smart advice (e.g., *Rain Expected*, *Bring Umbrella*, *Dress Warmly*, *Layer Up*, *High UV / Use SPF*, *Sunglasses Recommended*, *Breezy*, *Great Outdoor Conditions*).
+  - One-tap re-analyze refresh button with animated feedback.
 
 ### 🛰️ Live Precipitation Radar Map
 - Integrated interactive radar viewer powered by **Leaflet** and **LibreWXR API** (with RainViewer fallback):
@@ -39,7 +47,7 @@ An authentic, feature-packed Progressive Web App (PWA) recreating the native App
   - Base tiles styled with CARTO Dark Matter for dark iOS aesthetics.
 
 ### 📊 Comprehensive Weather Data & Forecasts
-- **Current Conditions**: Temperature, high/low range, condition description, and WMO weather icons.
+- **Current Conditions**: Temperature, high/low range, condition description, and WMO weather icons (with day/night variants).
 - **Hourly Forecast**: 24-hour horizontal scrolling forecast with centered temperatures, precipitation probabilities, and solar sunrise/sunset markers.
 - **10-Day Forecast**: Multi-day outlook with condition icons and normalized temperature range gradient bars.
 - **Wind Compass**: Custom SVG analog compass showing live wind direction, wind speed, and gust metrics.
@@ -54,16 +62,16 @@ An authentic, feature-packed Progressive Web App (PWA) recreating the native App
 
 ### 📍 Location Management & Geocoding
 - **GPS Auto-Detection**: Instant device geolocation with reverse geocoding to city/neighborhood names.
-- **City Search & Autocomplete**: Real-time debounce search for global cities and regions.
+- **City Search & Autocomplete**: Real-time debounce search for global cities and regions via Open-Meteo Geocoding API.
 - **Saved Locations Drawer**: Manage multiple saved cities with one-tap switching and deletion.
 - **Unit Conversion**: Seamless instant toggle between Metric (°C, km/h) and Imperial (°F, mph).
 
 ### 📱 Progressive Web App (PWA) & Offline Support
 - **Installable**: Full Web App Manifest support with standalone mode and custom high-res icons for iOS Home Screen, Android, and Desktop.
-- **Local Font Assets**: 100% self-hosted JetBrains Mono font files cached offline with zero third-party font network dependencies.
+- **Local Font Assets**: 100% self-hosted JetBrains Mono font files (all weights: Thin, ExtraLight, Light, Regular, Medium, SemiBold, Bold, ExtraBold, and variable font files) cached offline with zero third-party font network dependencies.
 - **Service Worker Caching**: Offline caching strategy allowing instant launches even without network connectivity.
 - **Cache Status Indicator**: Visual notification badge when viewing cached or offline meteorological data.
-- **Console Events & VarVal Logging**: Comprehensive real-time event logging with styled badges and variable-value (`var=val`) combinations for lifecycle events, API fetches, geolocation updates, radar animations, and UI interactions.
+- **Console Events & VarVal Engine**: Structured real-time event telemetry system featuring color-coded theme badges (cyan for lifecycle & storage, purple for canvas & AI, green for success, amber for warnings, red for errors) and formatted `var=val` variable-value pairs for all lifecycle events, API fetches, geolocation updates, particle canvas animations, and UI interactions.
 
 ---
 
@@ -80,6 +88,7 @@ An authentic, feature-packed Progressive Web App (PWA) recreating the native App
 | **Geocoding API** | [Open-Meteo Geocoding API](https://open-meteo.com/en/docs/geocoding-api) |
 | **Reverse Geocoding** | [BigDataCloud Reverse Geocoding API](https://api-bdc.io/) |
 | **Storage & PWA** | Service Worker API, Cache Storage API, LocalStorage, Web App Manifest |
+| **Telemetry & Logging** | VarVal Event Engine (Themed, color-coded console event telemetry) |
 
 ---
 
@@ -159,13 +168,13 @@ http://localhost:8080
 A helper script is included to increment the semantic application version and update the Service Worker cache identifier:
 
 ```bash
-# Bump patch version (e.g., v2.4.4 -> v2.4.5)
+# Bump patch version (e.g., v2.6.2 -> v2.6.3)
 node bump-version.js patch
 
-# Bump minor version (e.g., v2.4.4 -> v2.5.0)
+# Bump minor version (e.g., v2.6.2 -> v2.7.0)
 node bump-version.js minor
 
-# Bump major version (e.g., v2.4.4 -> v3.0.0)
+# Bump major version (e.g., v2.6.2 -> v3.0.0)
 node bump-version.js major
 ```
 
