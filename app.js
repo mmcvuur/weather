@@ -1,13 +1,50 @@
+// --- CONSOLE EVENTS LOGGING (VARVAL ENGINE) ---
+function formatVarVal(val) {
+  if (val === null) return "null";
+  if (val === undefined) return "undefined";
+  if (typeof val === "string") return `"${val}"`;
+  if (typeof val === "number" || typeof val === "boolean") return String(val);
+  if (Array.isArray(val)) return `[${val.map(v => typeof v === 'object' && v !== null ? '{...}' : formatVarVal(v)).join(', ')}]`;
+  if (typeof val === "object") {
+    try {
+      return JSON.stringify(val);
+    } catch {
+      return "[Object]";
+    }
+  }
+  return String(val);
+}
+
+function logEvent(eventName, params = {}) {
+  const varValPairs = Object.entries(params)
+    .filter(([_, v]) => v !== undefined && typeof v !== 'function')
+    .map(([k, v]) => `${k}=${formatVarVal(v)}`);
+
+  const varValStr = varValPairs.length > 0 ? varValPairs.join(', ') : '(none)';
+
+  console.log(
+    `%c[Event: ${eventName}]%c ${varValStr}`,
+    'color: #38bdf8; font-weight: bold; background: rgba(56, 189, 248, 0.12); padding: 2px 6px; border-radius: 4px;',
+    'color: #94a3b8; font-family: monospace;',
+    params
+  );
+}
+
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' })
       .then((reg) => {
+        logEvent('sw:registered', { scope: reg.scope });
         reg.update();
       })
-      .catch(err => console.warn('SW failed:', err));
+      .catch(err => {
+        logEvent('sw:register_error', { error: err.message || String(err) });
+        console.warn('SW failed:', err);
+      });
 
     let refreshing = false;
     navigator.serviceWorker.addEventListener('controllerchange', () => {
+      logEvent('sw:controller_change', { action: 'reload' });
       if (!refreshing) {
         refreshing = true;
         window.location.reload();
@@ -15,6 +52,7 @@ if ('serviceWorker' in navigator) {
     });
   });
 }
+
 
 const DEFAULT_LOCATION = { lat: 50.8503, lon: 4.3517, name: "Brussels" };
 
@@ -249,6 +287,7 @@ function getLastGPSLocation() {
 function saveLastGPSLocation(loc) {
   try {
     localStorage.setItem('ios_weather_last_gps', JSON.stringify(loc));
+    logEvent('storage:gps_saved', { name: loc.name, lat: loc.lat, lon: loc.lon, isGPS: !!loc.isGPS });
   } catch (err) {
     console.error("Failed to save last GPS location:", err);
   }
@@ -257,6 +296,7 @@ function saveLastGPSLocation(loc) {
 function removeLastGPSLocation() {
   try {
     localStorage.removeItem('ios_weather_last_gps');
+    logEvent('storage:gps_removed', { removed: true });
   } catch (err) {
     console.error("Failed to remove last GPS location:", err);
   }
@@ -274,6 +314,7 @@ function getStoredLocations() {
 function saveLocations(locations) {
   try {
     localStorage.setItem('ios_weather_saved', JSON.stringify(locations));
+    logEvent('storage:locations_saved', { count: locations.length, locationNames: locations.map(l => l.name) });
   } catch (err) {
     console.error("Failed to save locations:", err);
   }
@@ -291,6 +332,7 @@ function getActiveLocation() {
 function setActiveLocation(loc) {
   try {
     localStorage.setItem('ios_weather_active', JSON.stringify(loc));
+    logEvent('storage:active_location_set', { name: loc.name, lat: loc.lat, lon: loc.lon, isGPS: !!loc.isGPS });
   } catch (err) {
     console.error("Failed to set active location:", err);
   }
@@ -357,7 +399,9 @@ function updateUnitButtonsUI() {
 }
 
 function switchUnit(unit) {
-  if (getPreferredUnit() === unit) return;
+  const prevUnit = getPreferredUnit();
+  if (prevUnit === unit) return;
+  logEvent('ui:switch_unit', { prevUnit, newUnit: unit });
   setPreferredUnit(unit);
   updateUnitButtonsUI();
 
@@ -389,6 +433,7 @@ function saveCachedPayload(lat, lon, cityName, weatherData, aqiData) {
       aqiData
     };
     localStorage.setItem(key, JSON.stringify(payload));
+    logEvent('cache:save', { cityName, lat, lon, hasWeatherData: !!weatherData, hasAqiData: !!aqiData, timestamp: payload.timestamp });
   } catch (err) {
     console.warn("Failed to cache weather payload:", err);
   }
@@ -410,6 +455,16 @@ function renderAllWeather(weatherData, aqiData, lat, lon, cityName, isCached = f
   } else {
     document.title = displayCity;
   }
+
+  logEvent('weather:render_all', {
+    cityName: displayCity,
+    lat,
+    lon,
+    isCached,
+    temperature: weatherData?.current?.temperature_2m,
+    weatherCode: weatherData?.current?.weather_code,
+    isDay: weatherData?.current?.is_day
+  });
 
   renderCurrent(weatherData);
   renderAISummary(weatherData, aqiData);
@@ -449,6 +504,14 @@ function initAutoRefreshTimer() {
   // Periodic interval: Reload weather data every 10 minutes (600,000 ms)
   autoRefreshTimerId = setInterval(() => {
     if (!document.hidden) {
+      const activeLoc = getActiveLocation();
+      logEvent('auto_refresh:timer_triggered', {
+        intervalMs: DATA_REFRESH_INTERVAL_MS,
+        activeLocation: activeLoc?.name,
+        lat: activeLoc?.lat,
+        lon: activeLoc?.lon,
+        isGPS: !!activeLoc?.isGPS
+      });
       console.log("[Auto-Refresh] 10-minute timer triggered - reloading weather data.");
       refreshActiveWeatherData();
     }
@@ -457,22 +520,39 @@ function initAutoRefreshTimer() {
   // Background-to-foreground check:
   // If the user returns to the tab/app after 10+ minutes of inactivity, reload immediately.
   document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) {
-      const elapsed = Date.now() - lastDataFetchTime;
-      if (lastDataFetchTime > 0 && elapsed >= DATA_REFRESH_INTERVAL_MS) {
-        console.log(`[Auto-Refresh] Tab active after ${Math.round(elapsed / 60000)}m - reloading stale weather data.`);
-        refreshActiveWeatherData();
-      }
+    const elapsed = lastDataFetchTime > 0 ? Date.now() - lastDataFetchTime : 0;
+    const willRefresh = !document.hidden && lastDataFetchTime > 0 && elapsed >= DATA_REFRESH_INTERVAL_MS;
+    logEvent('page:visibilitychange', {
+      hidden: document.hidden,
+      visibilityState: document.visibilityState,
+      elapsedMs: elapsed,
+      thresholdMs: DATA_REFRESH_INTERVAL_MS,
+      willRefresh
+    });
+    if (willRefresh) {
+      console.log(`[Auto-Refresh] Tab active after ${Math.round(elapsed / 60000)}m - reloading stale weather data.`);
+      refreshActiveWeatherData();
     }
   });
 
   // Online status recovery check:
   window.addEventListener('online', () => {
-    const elapsed = Date.now() - lastDataFetchTime;
-    if (elapsed >= DATA_REFRESH_INTERVAL_MS) {
+    const elapsed = lastDataFetchTime > 0 ? Date.now() - lastDataFetchTime : 0;
+    const willRefresh = elapsed >= DATA_REFRESH_INTERVAL_MS;
+    logEvent('page:online', {
+      online: navigator.onLine,
+      elapsedMs: elapsed,
+      thresholdMs: DATA_REFRESH_INTERVAL_MS,
+      willRefresh
+    });
+    if (willRefresh) {
       console.log("[Auto-Refresh] Network restored - reloading weather data.");
       refreshActiveWeatherData();
     }
+  });
+
+  window.addEventListener('offline', () => {
+    logEvent('page:offline', { online: false });
   });
 }
 
@@ -485,11 +565,26 @@ async function initApp() {
   const activeLoc = getActiveLocation();
   const cached = getCachedPayload(activeLoc.lat, activeLoc.lon);
 
+  logEvent('app:init', {
+    activeLocation: activeLoc.name,
+    lat: activeLoc.lat,
+    lon: activeLoc.lon,
+    isGPS: !!activeLoc.isGPS,
+    preferredUnit: getPreferredUnit(),
+    hasCachedPayload: !!(cached && cached.weatherData)
+  });
+
   if (cached && cached.weatherData) {
     // Zero-latency startup hydration
     if (cached.timestamp) {
       lastDataFetchTime = cached.timestamp;
     }
+    logEvent('storage:cache_hydrated', {
+      cityName: cached.cityName,
+      lat: cached.lat,
+      lon: cached.lon,
+      cacheAgeSec: Math.round((Date.now() - cached.timestamp) / 1000)
+    });
     renderAllWeather(cached.weatherData, cached.aqiData, cached.lat, cached.lon, cached.cityName, true);
   }
 
@@ -517,6 +612,7 @@ async function locateUser(options = {}) {
   }
 
   isLocatingGPS = true;
+  logEvent('location:gps_locate_start', { closeDrawer, forceFresh });
   const gpsBtn = document.getElementById("gps-locate-btn") || document.querySelector(".gps-action-btn");
   if (gpsBtn) {
     gpsBtn.classList.add("locating");
@@ -535,6 +631,7 @@ async function locateUser(options = {}) {
         const name = await getCityName(lat, lon);
         const loc = { lat, lon, name, isGPS: true };
         
+        logEvent('location:gps_locate_success', { lat, lon, cityName: name, accuracyMeters: Math.round(pos.coords.accuracy) });
         saveLastGPSLocation(loc);
         setActiveLocation(loc);
         fetchWeather(lat, lon, name);
@@ -571,6 +668,7 @@ async function locateUser(options = {}) {
       } else if (err.code === 3) {
         errMsg = "Location request timed out";
       }
+      logEvent('location:gps_locate_error', { code: err.code, message: err.message, errMsg });
       document.getElementById("condition").textContent = errMsg;
       alert(`Could not acquire GPS position: ${errMsg}. Check browser location permissions.`);
     },
@@ -590,8 +688,17 @@ function updateGPSInBackground() {
 
     if (!currentActive || !currentActive.isGPS) return;
 
+    const isMoved = Math.abs(currentActive.lat - lat) >= 0.001 || Math.abs(currentActive.lon - lon) >= 0.001;
+    logEvent('location:gps_background_check', {
+      prevLat: currentActive.lat,
+      prevLon: currentActive.lon,
+      newLat: lat,
+      newLon: lon,
+      movedSignificantly: isMoved
+    });
+
     // Skip redundant fetch if location has not changed significantly (~100m)
-    if (Math.abs(currentActive.lat - lat) < 0.001 && Math.abs(currentActive.lon - lon) < 0.001) {
+    if (!isMoved) {
       return;
     }
 
@@ -601,7 +708,10 @@ function updateGPSInBackground() {
     saveLastGPSLocation(loc);
     setActiveLocation(loc);
     fetchWeather(lat, lon, name);
-  }, (err) => console.warn("Background GPS update failed:", err), { timeout: 10000, maximumAge: 60000 });
+  }, (err) => {
+    logEvent('location:gps_background_error', { error: err.message || String(err) });
+    console.warn("Background GPS update failed:", err);
+  }, { timeout: 10000, maximumAge: 60000 });
 }
 
 async function getCityName(lat, lon) {
@@ -610,8 +720,11 @@ async function getCityName(lat, lon) {
     const res = await fetch(url);
     if (!res.ok) throw new Error("Reverse geocode HTTP error");
     const data = await res.json();
-    return data.city || data.locality || data.principalSubdivision || "Current Location";
+    const resolvedName = data.city || data.locality || data.principalSubdivision || "Current Location";
+    logEvent('location:reverse_geocode', { lat, lon, resolvedName });
+    return resolvedName;
   } catch (err) {
+    logEvent('location:reverse_geocode_fallback', { lat, lon, fallback: "Current Location" });
     return "Current Location";
   }
 }
@@ -631,6 +744,9 @@ async function fetchWeather(lat, lon, cityName) {
   if (!lastWeatherData) {
     document.getElementById("condition").textContent = "Loading weather...";
   }
+
+  const startTime = performance.now();
+  logEvent('weather:fetch_start', { cityName: displayCity, lat, lon });
 
   const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m,uv_index,visibility,surface_pressure&hourly=temperature_2m,weather_code,is_day,precipitation_probability&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset&forecast_days=10&timezone=auto`;
   const aqiUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=us_aqi,european_aqi,pm10,pm2_5&timezone=auto`;
@@ -652,11 +768,37 @@ async function fetchWeather(lat, lon, cityName) {
       aqiData = await aqiRes.json();
     }
 
+    const fetchDurationMs = Math.round(performance.now() - startTime);
+    const current = weatherData.current;
+    const meta = getWeatherMeta(current.weather_code, current.is_day);
+    const aqiVal = aqiData?.current?.us_aqi ?? aqiData?.current?.european_aqi ?? null;
+
+    logEvent('weather:fetch_success', {
+      cityName: displayCity,
+      lat,
+      lon,
+      temp: current.temperature_2m,
+      apparentTemp: current.apparent_temperature,
+      weatherCode: current.weather_code,
+      condition: meta.text,
+      isDay: current.is_day,
+      windSpeed: current.wind_speed_10m,
+      windGusts: current.wind_gusts_10m,
+      windDir: current.wind_direction_10m,
+      humidity: current.relative_humidity_2m,
+      uvIndex: current.uv_index,
+      visibilityKm: current.visibility !== undefined && current.visibility !== null ? Math.round(current.visibility / 1000) : null,
+      pressureHpa: current.surface_pressure !== undefined ? Math.round(current.surface_pressure) : null,
+      aqi: aqiVal,
+      fetchDurationMs
+    });
+
     saveCachedPayload(lat, lon, cityName, weatherData, aqiData);
     lastDataFetchTime = Date.now();
     renderAllWeather(weatherData, aqiData, lat, lon, cityName, false);
   } catch (error) {
     if (error.name === 'AbortError') return;
+    logEvent('weather:fetch_error', { cityName: displayCity, lat, lon, error: error.message || String(error) });
     console.error("Failed to load weather data:", error);
     if (!lastWeatherData) {
       renderAirQuality(null);
@@ -911,6 +1053,7 @@ function clearRadarLayers() {
 async function loadPrecipitationRadar() {
   try {
     let data = null;
+    let radarSource = "LibreWXR";
 
     // Primary source: LibreWXR (Open-Source, FOSS, Privacy-first)
     try {
@@ -924,6 +1067,7 @@ async function loadPrecipitationRadar() {
 
     // Fallback source: RainViewer
     if (!data || !data.host || !data.radar) {
+      radarSource = "RainViewer";
       const fallbackRes = await fetch("https://api.rainviewer.com/public/weather-maps.json");
       if (!fallbackRes.ok) throw new Error("Radar API error");
       data = await fallbackRes.json();
@@ -974,8 +1118,17 @@ async function loadPrecipitationRadar() {
 
       currentFrameIndex = radarFrames.length - 1;
       updateActiveRadarFrame();
+
+      logEvent('radar:load_success', {
+        source: radarSource,
+        totalFrames: radarFrames.length,
+        pastFrames: data.radar.past.length,
+        nowcastFrames: (data.radar.nowcast || []).length,
+        latestFrameTime: radarFrames[radarFrames.length - 1]?.timeStr
+      });
     }
   } catch (err) {
+    logEvent('radar:load_error', { error: err.message || String(err) });
     console.warn("Failed to load precipitation radar tiles:", err);
     const timeEl = document.getElementById("map-time");
     if (timeEl) timeEl.textContent = "Radar";
@@ -1007,6 +1160,10 @@ function resetRadarTime() {
   pauseRadarPlayback();
   if (radarFrames.length > 0) {
     currentFrameIndex = radarFrames.length - 1;
+    logEvent('radar:reset_live', {
+      frameIndex: currentFrameIndex,
+      timeStr: radarFrames[currentFrameIndex]?.timeStr
+    });
     updateActiveRadarFrame();
   }
 }
@@ -1022,6 +1179,7 @@ function toggleRadarPlayback() {
 function startRadarPlayback() {
   if (radarFrames.length === 0) return;
   isRadarPlaying = true;
+  logEvent('radar:play_start', { currentFrameIndex, totalFrames: radarFrames.length });
 
   updatePlaybackButtonsUI(true);
 
@@ -1041,6 +1199,13 @@ function startRadarPlayback() {
 }
 
 function pauseRadarPlayback() {
+  if (isRadarPlaying) {
+    logEvent('radar:play_pause', {
+      currentFrameIndex,
+      totalFrames: radarFrames.length,
+      timeStr: radarFrames[currentFrameIndex]?.timeStr
+    });
+  }
   isRadarPlaying = false;
   if (radarPlaybackTimer) {
     clearInterval(radarPlaybackTimer);
@@ -1068,6 +1233,7 @@ function updatePlaybackButtonsUI(playing) {
 
 function recenterMap() {
   if (map && currentMapCoords) {
+    logEvent('radar:recenter', { lat: currentMapCoords.lat, lon: currentMapCoords.lon, isFullscreen: false });
     map.setView([currentMapCoords.lat, currentMapCoords.lon], 7, { animate: true });
   }
 }
@@ -1079,6 +1245,8 @@ function toggleFullscreenMap(open) {
   const modal = document.getElementById("fullscreen-map-modal");
   const appEl = document.getElementById("app");
   if (!modal) return;
+
+  logEvent('ui:toggle_fullscreen_radar', { open, lat: currentMapCoords.lat, lon: currentMapCoords.lon });
 
   if (open) {
     if (appEl) {
@@ -1163,6 +1331,7 @@ function initOrUpdateFullscreenMap() {
 
 function recenterFullscreenMap() {
   if (fsMap && currentMapCoords) {
+    logEvent('radar:recenter', { lat: currentMapCoords.lat, lon: currentMapCoords.lon, isFullscreen: true });
     fsMap.setView([currentMapCoords.lat, currentMapCoords.lon], 7, { animate: true });
   }
 }
@@ -1452,6 +1621,11 @@ function renderAISummary(weatherData, aqiData) {
   const result = generateAISummary(weatherData, aqiData);
   textEl.textContent = result.text;
 
+  logEvent('ai:summary_rendered', {
+    city: lastFetchCity ? lastFetchCity.split(',')[0].trim() : 'Current Location',
+    chipsCount: result.chips ? result.chips.length : 0
+  });
+
   if (timeEl) {
     const now = new Date();
     const hh = String(now.getHours()).padStart(2, '0');
@@ -1479,6 +1653,10 @@ function triggerAISummaryRefresh() {
   const cardEl = document.getElementById("ai-summary-card");
   if (refreshBtn) refreshBtn.classList.add("spinning");
   if (cardEl) cardEl.classList.add("pulse-shimmer");
+
+  logEvent('ui:ai_summary_refresh_click', {
+    city: lastFetchCity ? lastFetchCity.split(',')[0].trim() : 'Current Location'
+  });
 
   setTimeout(() => {
     if (lastWeatherData) {
@@ -1624,6 +1802,8 @@ function toggleDrawer(open) {
   const appEl = document.getElementById("app");
   const searchInput = document.getElementById("search-input");
 
+  logEvent('ui:toggle_drawer', { open });
+
   if (open) {
     renderSavedLocations();
     if (appEl) {
@@ -1672,6 +1852,8 @@ function handleSearch(query) {
     searchAbortController = null;
   }
 
+  logEvent('search:input', { query });
+
   const resultsContainer = document.getElementById("search-results");
   if (!query || query.trim().length < 2) {
     resultsContainer.innerHTML = "";
@@ -1695,6 +1877,7 @@ async function executeSearch(query) {
 
     resultsContainer.innerHTML = "";
     if (data.results && data.results.length > 0) {
+      logEvent('search:results', { query, resultCount: data.results.length });
       data.results.forEach(loc => {
         const item = document.createElement("div");
         item.className = "location-item";
@@ -1718,10 +1901,12 @@ async function executeSearch(query) {
         resultsContainer.appendChild(item);
       });
     } else {
+      logEvent('search:results', { query, resultCount: 0 });
       resultsContainer.innerHTML = `<div class="empty-state">No locations found.</div>`;
     }
   } catch (err) {
     if (err.name !== 'AbortError') {
+      logEvent('search:error', { query, error: err.message || String(err) });
       console.warn("Geocoding search failed:", err);
       resultsContainer.innerHTML = `<div class="empty-state">Search failed. Please try again.</div>`;
     }
@@ -1737,6 +1922,8 @@ function selectAndSaveLocation(lat, lon, name, country) {
   const exists = saved.some(l => 
     l.name === fullLabel || (Math.abs(l.lat - lat) < 0.01 && Math.abs(l.lon - lon) < 0.01)
   );
+
+  logEvent('location:select_and_save', { name: fullLabel, lat, lon, isNew: !exists });
 
   if (!exists) {
     saved.push(newLoc);
@@ -1873,13 +2060,15 @@ function deleteGPSLocation(event) {
     (lastGPS && Math.abs(activeLoc.lat - lastGPS.lat) < 0.001 && Math.abs(activeLoc.lon - lastGPS.lon) < 0.001)
   );
 
+  let fallback = DEFAULT_LOCATION;
   if (isCurrentActiveGPS) {
     const saved = getStoredLocations();
-    const fallback = saved.length > 0 ? saved[0] : DEFAULT_LOCATION;
+    fallback = saved.length > 0 ? saved[0] : DEFAULT_LOCATION;
     setActiveLocation(fallback);
     fetchWeather(fallback.lat, fallback.lon, fallback.name);
   }
 
+  logEvent('location:gps_delete', { fallbackCity: fallback.name, fallbackLat: fallback.lat, fallbackLon: fallback.lon });
   renderSavedLocations();
 }
 
@@ -1888,6 +2077,7 @@ function deleteLocation(event, id) {
   let saved = getStoredLocations();
   saved = saved.filter(loc => (loc.id ? loc.id !== id : loc.name !== id));
   saveLocations(saved);
+  logEvent('location:delete', { id, remainingCount: saved.length });
 
   const activeLoc = getActiveLocation();
   if (activeLoc && (activeLoc.id === id || activeLoc.name === id)) {
@@ -1928,6 +2118,7 @@ function initPullToRefresh() {
     if (container.scrollTop <= 2 && !isRefreshing) {
       startY = e.touches[0].pageY;
       isPulling = true;
+      logEvent('pull_refresh:start', { startY: Math.round(startY), scrollTop: container.scrollTop });
     }
   }, { passive: true });
 
@@ -1966,8 +2157,10 @@ function initPullToRefresh() {
       icon.textContent = "🔄";
       text.textContent = "Updating weather...";
 
+      const activeLoc = getActiveLocation();
+      logEvent('pull_refresh:triggered', { activeLocation: activeLoc?.name, lat: activeLoc?.lat, lon: activeLoc?.lon });
+
       try {
-        const activeLoc = getActiveLocation();
         await fetchWeather(activeLoc.lat, activeLoc.lon, activeLoc.name);
       } catch (err) {
         console.warn("Pull refresh error:", err);
@@ -1977,6 +2170,7 @@ function initPullToRefresh() {
         resetIndicator();
       }, 600);
     } else {
+      logEvent('pull_refresh:cancelled', { reason: 'threshold_not_met' });
       resetIndicator();
     }
   };
@@ -2011,6 +2205,7 @@ class WeatherCanvasEngine {
     this.resize();
     window.addEventListener('resize', () => this.resize());
     document.addEventListener('visibilitychange', () => {
+      logEvent('canvas:visibility_changed', { hidden: document.hidden, currentCode: this.currentCode });
       if (document.hidden) {
         this.stop();
       } else if (this.currentCode !== null) {
@@ -2028,6 +2223,7 @@ class WeatherCanvasEngine {
     this.canvas.width = rect.width * dpr;
     this.canvas.height = rect.height * dpr;
     this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    logEvent('canvas:resize', { width: Math.round(this.width), height: Math.round(this.height), dpr });
   }
 
   setWeather(code, isDay = 1, windSpeed = 0, windGusts = 0) {
@@ -2041,6 +2237,14 @@ class WeatherCanvasEngine {
     ) {
       return;
     }
+    const meta = getWeatherMeta(code, isDay);
+    logEvent('canvas:set_weather', {
+      code,
+      condition: meta.text,
+      isDay,
+      windSpeed: numericWind,
+      windGusts: numericGusts
+    });
     this.currentCode = code;
     this.isDay = isDay;
     this.windSpeed = numericWind;
@@ -2394,10 +2598,21 @@ class WeatherCanvasEngine {
         }
       }
     }
+
+    const meta = getWeatherMeta(code, this.isDay);
+    logEvent('canvas:particles_created', {
+      weatherCode: code,
+      condition: meta.text,
+      isDay: this.isDay,
+      particleCount: this.particles.length,
+      windParticleCount: this.windParticles.length,
+      isWindy
+    });
   }
 
   start() {
     if (this.animId) cancelAnimationFrame(this.animId);
+    logEvent('canvas:animation_start', { weatherCode: this.currentCode });
     const loop = () => {
       this.updateAndDraw();
       this.animId = requestAnimationFrame(loop);
@@ -2407,6 +2622,7 @@ class WeatherCanvasEngine {
 
   stop() {
     if (this.animId) {
+      logEvent('canvas:animation_stop', { weatherCode: this.currentCode });
       cancelAnimationFrame(this.animId);
       this.animId = null;
     }

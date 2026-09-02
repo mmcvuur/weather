@@ -63,6 +63,7 @@ An authentic, feature-packed Progressive Web App (PWA) recreating the native App
 - **Local Font Assets**: 100% self-hosted JetBrains Mono font files cached offline with zero third-party font network dependencies.
 - **Service Worker Caching**: Offline caching strategy allowing instant launches even without network connectivity.
 - **Cache Status Indicator**: Visual notification badge when viewing cached or offline meteorological data.
+- **Console Events & VarVal Logging**: Comprehensive real-time event logging with styled badges and variable-value (`var=val`) combinations for lifecycle events, API fetches, geolocation updates, radar animations, and UI interactions.
 
 ---
 
