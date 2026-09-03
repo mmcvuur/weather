@@ -1004,7 +1004,7 @@ let currentFrameIndex = 0;
 let isRadarPlaying = false;
 let radarPlaybackTimer = null;
 
-const CARTO_API_KEY = "cb1_2iez_1_744fcfd7feb10866db03cc60";
+const CARTO_API_KEY = (typeof window !== 'undefined' && window.ENV && window.ENV.CARTO_API_KEY) ? window.ENV.CARTO_API_KEY : "";
 
 function addDarkBasemapLayers(targetMap) {
   if (CARTO_API_KEY) {

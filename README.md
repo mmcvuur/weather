@@ -99,6 +99,7 @@ An authentic, feature-packed Progressive Web App (PWA) recreating the native App
 ├── index.html           # Main HTML structure, layout templates, and modal drawers
 ├── styles.css           # Glassmorphism styling, responsive layout, and typography rules
 ├── app.js               # Application logic, state, APIs, particle engine, and UI rendering
+├── config.example.js    # Environment configuration template (copy to config.js)
 ├── sw.js                # Service Worker for asset caching and offline resilience
 ├── bump-version.js      # Utility script for semantic versioning & cache timestamp updates
 ├── fonts/               # Self-hosted JetBrains Mono WOFF2 webfont files
@@ -125,7 +126,14 @@ git clone https://codeberg.org/mmcvuur/weather.git
 cd weather
 ```
 
-### 2. Run with any local HTTP server
+### 2. (Optional) Configure Environment Keys
+If you have a CARTO API key for custom dark basemaps, copy the template and insert your key:
+```bash
+cp config.example.js config.js
+```
+*(If omitted, the app automatically falls back to keyless Esri Dark Canvas basemaps.)*
+
+### 3. Run with any local HTTP server
 Because the app uses modern Web APIs (Service Workers and Geolocation), it is best served over HTTP/HTTPS rather than opened directly as a `file://` URL.
 
 **Using Python:**
