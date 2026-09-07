@@ -122,7 +122,7 @@ No build tools, bundlers, or package installations are required!
 
 ### 1. Clone the repository
 ```bash
-git clone https://codeberg.org/mmcvuur/weather.git
+git clone https://github.com/mmcvuur/weather.git
 cd weather
 ```
 
