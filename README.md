@@ -44,7 +44,7 @@ An authentic, feature-packed Progressive Web App (PWA) recreating the native App
   - Live animated past and nowcast radar tile overlays.
   - Playback controls with timeline frame stepping and reset to live view.
   - **Fullscreen Radar View**: Expandable modal map with smooth panning and GPS location recentering.
-  - Base tiles styled with CARTO Dark Matter for dark iOS aesthetics.
+  - Base tiles styled with Esri Dark Gray Canvas (or CARTO Dark Matter when configured) for dark iOS aesthetics.
 
 ### 📊 Comprehensive Weather Data & Forecasts
 - **Current Conditions**: Temperature, high/low range, condition description, and WMO weather icons (with day/night variants).
@@ -63,7 +63,7 @@ An authentic, feature-packed Progressive Web App (PWA) recreating the native App
 ### 📍 Location Management & Geocoding
 - **GPS Auto-Detection**: Instant device geolocation with reverse geocoding to city/neighborhood names.
 - **City Search & Autocomplete**: Real-time debounce search for global cities and regions via Open-Meteo Geocoding API.
-- **Saved Locations Drawer**: Manage multiple saved cities with one-tap switching and deletion.
+- **Saved Locations Drawer**: Manage multiple saved cities and active GPS location with one-tap switching, deletion, and refresh.
 - **Unit Conversion**: Seamless instant toggle between Metric (°C, km/h) and Imperial (°F, mph).
 
 ### 📱 Progressive Web App (PWA) & Offline Support
@@ -82,7 +82,7 @@ An authentic, feature-packed Progressive Web App (PWA) recreating the native App
 | **Frontend** | Vanilla JavaScript (ES6+), HTML5, Vanilla CSS3 (Glassmorphism, Flexbox, CSS Grid) |
 | **Typography** | [JetBrains Mono](https://www.jetbrains.com/lp/mono/) (Self-hosted variable & static WOFF2 webfonts) |
 | **Graphics Engine** | HTML5 Canvas 2D API (Dynamic Weather Particles) |
-| **Mapping & Radar** | Leaflet.js, LibreWXR Radar API (RainViewer fallback), CARTO Dark Matter Tiles |
+| **Mapping & Radar** | Leaflet.js, LibreWXR Radar API (RainViewer fallback), Esri Dark Gray Canvas & CARTO Dark Matter Tiles |
 | **Weather Data API** | [Open-Meteo Weather Forecast API](https://open-meteo.com/) (No API key required) |
 | **Air Quality API** | [Open-Meteo Air Quality API](https://open-meteo.com/en/docs/air-quality-api) |
 | **Geocoding API** | [Open-Meteo Geocoding API](https://open-meteo.com/en/docs/geocoding-api) |
@@ -96,10 +96,12 @@ An authentic, feature-packed Progressive Web App (PWA) recreating the native App
 
 ```text
 .
+├── .gitignore           # Git ignore rules (ignores config.js, .env, OS files)
 ├── index.html           # Main HTML structure, layout templates, and modal drawers
 ├── styles.css           # Glassmorphism styling, responsive layout, and typography rules
 ├── app.js               # Application logic, state, APIs, particle engine, and UI rendering
 ├── config.example.js    # Environment configuration template (copy to config.js)
+├── config.js            # Optional local runtime configuration (git-ignored)
 ├── sw.js                # Service Worker for asset caching and offline resilience
 ├── bump-version.js      # Utility script for semantic versioning & cache timestamp updates
 ├── fonts/               # Self-hosted JetBrains Mono WOFF2 webfont files
@@ -187,8 +189,8 @@ node bump-version.js major
 ```
 
 This automatically:
-1. Updates the `SW_VERSION` timestamp in [sw.js](file:///Users/mmcvuur/CODE/PROJECTS/weather/sw.js) to bust stale cache buckets on client devices.
-2. Updates the visible version badge in [index.html](file:///Users/mmcvuur/CODE/PROJECTS/weather/index.html).
+1. Updates the `SW_VERSION` timestamp in [sw.js](sw.js) to bust stale cache buckets on client devices.
+2. Updates the visible version badge in [index.html](index.html).
 
 ---
 
@@ -202,4 +204,4 @@ This automatically:
 
 ## 📄 License
 
-This project is open-source software licensed under the [MIT License](file:///Users/mmcvuur/CODE/PROJECTS/weather/LICENSE).
+This project is open-source software licensed under the [MIT License](LICENSE).
