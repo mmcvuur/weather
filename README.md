@@ -1,4 +1,4 @@
-# 🌦️ iOS Weather App Clone
+# 🌦️ iOS Weather App Clone PWA
 
 An authentic, feature-packed Progressive Web App (PWA) recreating the native Apple iOS Weather experience in modern browsers. Built with pure Vanilla JavaScript, CSS glassmorphism, dynamic HTML5 canvas weather effects, and powered by open APIs—with zero build step or heavy dependencies.
 
